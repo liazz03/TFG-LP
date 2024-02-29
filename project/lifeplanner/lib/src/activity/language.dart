@@ -12,8 +12,6 @@ enum Level {
 class Language extends Course {
   Level level;
 
-  Language(String name, String description, bool finished, int dedicationTimePerWeek, int targetDuration, Level level)
-      : super(name, description, finished, dedicationTimePerWeek, targetDuration) {
-    this.level = level;
-  }
+  Language(String name, String description, bool finished, int dedicationTimePerWeek, int targetDuration, this.level)
+      : super(name, description, finished, dedicationTimePerWeek, targetDuration);
 }
