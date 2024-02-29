@@ -2,8 +2,10 @@ import 'package:lifeplanner/src/activity/activity.dart';
 
 class Course extends Activity
 {
-  Bool finished;
+  bool finished;
   int dedication_time_x_week;
+  int target_duration;
   
-  Activity(this.name, this.description);
+  Course(name, description, this.finished, this.dedication_time_x_week, this.target_duration): super(name, description);
 }
+
