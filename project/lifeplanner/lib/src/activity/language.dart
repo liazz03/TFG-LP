@@ -1,6 +1,6 @@
 import 'package:lifeplanner/src/activity/course.dart';
 
-enum Level {
+enum LANGUAGE_LEVEL {
   A1,
   A2,
   B1,
@@ -10,7 +10,7 @@ enum Level {
 }
 
 class Language extends Course {
-  Level level;
+  LANGUAGE_LEVEL level;
 
   Language(String name, String description, bool finished, int dedicationTimePerWeek, int targetDuration, this.level)
       : super(name, description, finished, dedicationTimePerWeek, targetDuration);

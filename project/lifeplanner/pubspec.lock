@@ -144,6 +144,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.0"
+  schedules:
+    dependency: "direct main"
+    description:
+      name: schedules
+      sha256: "80495767bfc6d670ccebe6330488547e75e5a31b75e9876a5bc9f8dbb3af13df"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   sky_engine:
     dependency: transitive
     description: flutter

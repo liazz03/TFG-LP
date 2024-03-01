@@ -1,4 +1,5 @@
-abstract class Activity{
+abstract class Activity
+{
   String name;
   String description;
   
