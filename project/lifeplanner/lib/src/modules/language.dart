@@ -1,13 +1,6 @@
-import 'package:lifeplanner/src/activity/course.dart';
+import 'package:lifeplanner/src/modules/course.dart';
 
-enum LANGUAGE_LEVEL {
-  A1,
-  A2,
-  B1,
-  B2,
-  C1,
-  C2,
-}
+enum LANGUAGE_LEVEL {A1, A2, B1, B2, C1,C2,}
 
 class Language extends Course {
   LANGUAGE_LEVEL level;
