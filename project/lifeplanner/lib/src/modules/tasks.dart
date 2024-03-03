@@ -8,7 +8,7 @@ class Tasks {
   DateTime? deadline;
   String description;
   DateTime? date_of_doing;
-  Singular? timeslot;
+  Schedule? timeslot;
 
   Tasks({
     required this.state,
