@@ -3,7 +3,7 @@ import 'package:schedules/schedules.dart';
 
 abstract class Sport extends Activity
 {
-  Daily schedule;
+  Weekly schedule;
 
   Sport(name, description, this.schedule): super(name, description);
 }

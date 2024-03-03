@@ -4,7 +4,7 @@ import 'package:schedules/schedules.dart';
 
 class Subject extends Activity
 {
-  Daily schedule;
+  Weekly schedule;
   int dedication_study_time_x_week;
   double target_average;
   int room;
