@@ -1,5 +1,5 @@
-import 'package:lifeplanner/src/modules/activity.dart';
-import 'package:lifeplanner/src/modules/grades.dart';
+import 'package:lifeplanner/src/modules/Activity/activity.dart';
+import 'package:lifeplanner/src/modules/Activity/grades.dart';
 import 'package:schedules/schedules.dart';
 
 class Subject extends Activity

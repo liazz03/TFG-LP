@@ -1,4 +1,4 @@
-import 'package:lifeplanner/src/modules/activity.dart';
+import 'package:lifeplanner/src/modules/Activity/activity.dart';
 
 class Course extends Activity
 {

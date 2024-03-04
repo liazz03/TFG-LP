@@ -1,4 +1,4 @@
-import 'package:lifeplanner/src/modules/activity.dart';
+import 'package:lifeplanner/src/modules/Activity/activity.dart';
 import 'package:schedules/schedules.dart';
 
 enum EVENT_STATE {Scheduled, Finished, Cancelled,}

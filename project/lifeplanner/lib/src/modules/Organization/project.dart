@@ -1,4 +1,4 @@
-import 'package:lifeplanner/src/modules/sprint.dart';
+import 'package:lifeplanner/src/modules/Organization/sprint.dart';
 import 'package:schedules/schedules.dart';
 
 enum PROJECT_STATE { IN_PROGRESS, DONE, CANCELLED, PLANNED }
