@@ -19,7 +19,7 @@ class Budget {
   double totalIncomeExpected;
   Map<String, double> expenses;
   Map<String, double> incomes;
-  // To-Do budget category --> DB
+  String budgetCategory;
 
   Budget({
     required this.month,
@@ -27,6 +27,7 @@ class Budget {
     required this.totalIncomeExpected,
     required this.expenses,
     required this.incomes,
+    required this.budgetCategory,
   });
 
   @override

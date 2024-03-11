@@ -5,14 +5,14 @@ class Goal {
   String? description;
   DateTime? _targetDate;
   GoalType? type;
-  DateTime? actualDate;
+  DateTime? actualDate_achievement;
   bool achieved;
 
   Goal({
     required this.name,
     this.description,
     DateTime? targetDate,
-    this.actualDate,
+    this.actualDate_achievement,
     this.achieved = false,
   }) {
     _targetDate = targetDate;

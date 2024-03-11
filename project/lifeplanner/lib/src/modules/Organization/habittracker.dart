@@ -1,4 +1,18 @@
 import 'package:lifeplanner/src/modules/Activity/activity.dart';
+enum Month {
+  January,
+  February,
+  March,
+  April,
+  May,
+  June,
+  July,
+  August,
+  September,
+  October,
+  November,
+  December,
+}
 
 class Habit {
   String name;
@@ -17,8 +31,8 @@ class Habit {
 
 class HabitTracker {
   List<Habit> habits;
-
-  HabitTracker({this.habits = const []});
+  Month month;
+  HabitTracker({this.habits = const [], required this.month});
 
   void addHabit(Habit habit) {
     habits.add(habit);

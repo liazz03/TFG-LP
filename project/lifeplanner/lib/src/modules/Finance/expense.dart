@@ -3,9 +3,10 @@ class Expense {
   double amount;
   String concept;
   bool budget_or_not;
-  // To-Do budget category --> DB
+  String budgetCategory;
 
-  Expense({required this.date, required this.amount, required this.concept, required this.budget_or_not});
+  Expense({required this.date, required this.amount, required this.concept, required this.budget_or_not,
+    required this.budgetCategory,});
 
   @override
   String toString() {

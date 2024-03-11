@@ -15,6 +15,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   schedules: ^0.0.4
+  sqflite: ^2.0.2
+  path: ^1.9.0
+  
+
 
 dev_dependencies:
   flutter_test:
