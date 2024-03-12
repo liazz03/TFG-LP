@@ -1,17 +1,4 @@
-enum Month {
-  January,
-  February,
-  March,
-  April,
-  May,
-  June,
-  July,
-  August,
-  September,
-  October,
-  November,
-  December,
-}
+import 'package:lifeplanner/src/modules/Organization/habittracker.dart';
 
 class Budget {
   final Month month;
@@ -19,7 +6,6 @@ class Budget {
   double totalIncomeExpected;
   Map<String, double> expenses;
   Map<String, double> incomes;
-  String budgetCategory;
 
   Budget({
     required this.month,
@@ -27,7 +13,6 @@ class Budget {
     required this.totalIncomeExpected,
     required this.expenses,
     required this.incomes,
-    required this.budgetCategory,
   });
 
   @override

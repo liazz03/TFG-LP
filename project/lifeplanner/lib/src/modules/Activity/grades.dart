@@ -40,7 +40,6 @@ class Grade
   String name;
   int weight;
   double grade;
-
   Grade(this.name, this.weight, this.grade);
 }
 
