@@ -33,23 +33,32 @@ class _MyAppState extends State<MyApp> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SquareButton(updateItems: _updateItems),
-                  SquareButton(updateItems: _updateItems),
+                  WeeklyPlannerButton(updateItems: _updateItems),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SquareButton(updateItems: _updateItems),
-                  SquareButton(updateItems: _updateItems),
+                  MothlyCalendarButton(updateItems: _updateItems),
+                  WeeklyScheduleButton(updateItems: _updateItems),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SquareButton(updateItems: _updateItems),
-                  SquareButton(updateItems: _updateItems),
+                  ToDoButton(updateItems: _updateItems),
+                  HabitTrackerButton(updateItems: _updateItems),
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AcademicsButton(updateItems: _updateItems),
+                  FinanceButton(updateItems: _updateItems),
+                ],
+              ),
+              
+              
               SizedBox(height: 20),
               Container(
                 width: 300, // Adjust width as needed
@@ -88,7 +97,189 @@ class SquareButton extends StatelessWidget {
             SnackBar(content: Text('Item added to database')),
           );
         },
-        child: Text('Button'),
+        child: Text('Button add db'),
+      ),
+    );
+  }
+}
+
+class WeeklyPlannerButton extends StatelessWidget {
+  final Function updateItems;
+
+  const WeeklyPlannerButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('Weekly Planner'),
+      ),
+    );
+  }
+}
+
+class MothlyCalendarButton extends StatelessWidget {
+  final Function updateItems;
+
+  const MothlyCalendarButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('Monthly Calendar'),
+      ),
+    );
+  }
+}
+
+class WeeklyScheduleButton extends StatelessWidget {
+  final Function updateItems;
+
+  const WeeklyScheduleButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('Weekly Schedule'),
+      ),
+    );
+  }
+}
+
+class ToDoButton extends StatelessWidget {
+  final Function updateItems;
+
+  const ToDoButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('To-Dos'),
+      ),
+    );
+  }
+}
+
+class HabitTrackerButton extends StatelessWidget {
+  final Function updateItems;
+
+  const HabitTrackerButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('Habit Tracker'),
+      ),
+    );
+  }
+}
+
+class AcademicsButton extends StatelessWidget {
+  final Function updateItems;
+
+  const AcademicsButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('Academics'),
+      ),
+    );
+  }
+}
+
+class FinanceButton extends StatelessWidget {
+  final Function updateItems;
+
+  const FinanceButton({Key? key, required this.updateItems}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 100,
+      margin: EdgeInsets.all(10),
+      child: ElevatedButton(
+        onPressed: () async {
+          await DatabaseHelper.addItem();
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Item added to database')),
+          );
+        },
+        child: Text('Finance'),
       ),
     );
   }
