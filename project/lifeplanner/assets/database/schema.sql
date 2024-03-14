@@ -1,12 +1,10 @@
--- schema.sql
-
----ACTIVITY---------------------------------------------
+-- ACTIVITY ---------------------------------------------
 CREATE TABLE week_activity (
   id INTEGER PRIMARY KEY,
   week TEXT,
   dedication_study_time_x_week INTEGER,
   actual_study_time_x_week INTEGER,
-  target_duration INTEGER,
+  target_duration INTEGER
 );
 
 CREATE TABLE courses (
@@ -16,7 +14,7 @@ CREATE TABLE courses (
   finished INTEGER,
   target_duration INTEGER,
   week_activity_id INTEGER, -- foreign key to reference week_activity
-  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id), -- defining foreign key constraint
+  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id) -- defining foreign key constraint
 );
 
 CREATE TABLE events (
@@ -26,18 +24,18 @@ CREATE TABLE events (
   date_time TEXT,
   state TEXT,
   category_id INTEGER, -- Foreign key reference to event_categories table
-  FOREIGN KEY (category_id) REFERENCES event_categories(id),
+  FOREIGN KEY (category_id) REFERENCES event_categories(id)
 );
 
 CREATE TABLE event_categories (
   id INTEGER PRIMARY KEY,
-  category TEXT UNIQUE, -- Adding unique constraint
+  category TEXT UNIQUE -- Adding unique constraint
 );
 
 CREATE TABLE assessments (
   id INTEGER PRIMARY KEY,
   name TEXT,
-  weight INTEGER,
+  weight INTEGER
 );
 
 CREATE TABLE grades (
@@ -46,7 +44,7 @@ CREATE TABLE grades (
   name TEXT,
   weight INTEGER,
   grade REAL,
-  FOREIGN KEY (assessment_id) REFERENCES assessments(id),
+  FOREIGN KEY (assessment_id) REFERENCES assessments(id)
 );
 
 CREATE TABLE languages (
@@ -57,14 +55,14 @@ CREATE TABLE languages (
   target_duration INTEGER,
   level TEXT,
   week_activity_id INTEGER, -- foreign key to reference week_activity
-  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id), -- defining foreign key constraint
+  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id) -- defining foreign key constraint
 );
 
 CREATE TABLE sports (
   id INTEGER PRIMARY KEY,
   name TEXT,
   description TEXT,
-  schedule TEXT,
+  schedule TEXT
 );
 
 CREATE TABLE subjects (
@@ -78,39 +76,38 @@ CREATE TABLE subjects (
   target_average REAL,
   room INTEGER,
   week_activity_id INTEGER, -- foreign key to reference week_activity
-  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id), -- defining foreign key constraint
+  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id) -- defining foreign key constraint
 );
 
 CREATE TABLE evaluations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT ,
-  date TEXT ,
+  name TEXT,
+  date TEXT,
   evaluation_type TEXT,
   subject_id INTEGER, -- foreign key to reference subjects
   FOREIGN KEY (subject_id) REFERENCES subjects(id) -- defining foreign key constraint
 );
-
 
 -- FINANCE --------------------------------------------
 CREATE TABLE budgets (
   id INTEGER PRIMARY KEY,
   month TEXT,
   total_expense_expected REAL,
-  total_income_expected REAL,
+  total_income_expected REAL
 );
 
-CREATE TABLE budget_expenses ( -- Represent the map og Budget categories
-  budget_id INTEGER PRIMARY KEY,
+CREATE TABLE budget_expenses ( -- Represent the map of Budget categories
+  budget_id INTEGER,
   category TEXT,
   amount REAL,
-  FOREIGN KEY (budget_id) REFERENCES budgets(id),
+  FOREIGN KEY (budget_id) REFERENCES budgets(id)
 );
 
-CREATE TABLE budget_incomes ( -- Represent the map og Budget categories
-  budget_id INTEGER PRIMARY KEY,
+CREATE TABLE budget_incomes ( -- Represent the map of Budget categories
+  budget_id INTEGER,
   category TEXT,
   amount REAL,
-  FOREIGN KEY (budget_id) REFERENCES budgets(id),
+  FOREIGN KEY (budget_id) REFERENCES budgets(id)
 );
 
 CREATE TABLE expenses (
@@ -119,7 +116,7 @@ CREATE TABLE expenses (
   amount REAL,
   concept TEXT,
   budget_or_not INTEGER,
-  budget_category TEXT,
+  budget_category TEXT
 );
 
 CREATE TABLE incomes (
@@ -128,7 +125,7 @@ CREATE TABLE incomes (
   amount REAL,
   concept TEXT,
   budget_or_not INTEGER,
-  budget_category TEXT,
+  budget_category TEXT
 );
 
 CREATE TABLE savings (
@@ -136,16 +133,15 @@ CREATE TABLE savings (
   name TEXT,
   description TEXT,
   target_amount REAL,
-  current_saved REAL,
+  current_saved REAL
 );
 
 CREATE TABLE saving_contributions (
   saving_id INTEGER,
   date TEXT,
   amount REAL,
-  FOREIGN KEY (saving_id) REFERENCES savings(id),
+  FOREIGN KEY (saving_id) REFERENCES savings(id)
 );
-
 
 ----JOB----------------
 CREATE TABLE jobs (
@@ -157,9 +153,8 @@ CREATE TABLE jobs (
   type TEXT,
   hours INTEGER,
   income_id INTEGER,
-  FOREIGN KEY (income_id) REFERENCES incomes(id),
+  FOREIGN KEY (income_id) REFERENCES incomes(id)
 );
-
 
 CREATE TABLE vacations (
   id INTEGER PRIMARY KEY,
@@ -169,11 +164,10 @@ CREATE TABLE vacations (
   days INTEGER,
   title TEXT,
   type TEXT,
-  FOREIGN KEY (job_id) REFERENCES jobs(id),
+  FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
 --ORGANIZATION-------------------------
-
 CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
   name TEXT,
@@ -196,29 +190,14 @@ CREATE TABLE habits (
   description TEXT,
   related_activity_id INTEGER,
   FOREIGN KEY (habit_tracker_id) REFERENCES habit_trackers(id),
-  FOREIGN KEY (related_activity_id) REFERENCES activities(id),
-);
-
-CREATE TABLE habit_trackers (
-  id INTEGER PRIMARY KEY,
-  month TEXT
-);
-
-CREATE TABLE habits (
-  id INTEGER PRIMARY KEY,
-  habit_tracker_id INTEGER,
-  name TEXT,
-  description TEXT,
-  related_activity_id INTEGER,
-  FOREIGN KEY (habit_tracker_id) REFERENCES habit_trackers(id),
-  FOREIGN KEY (related_activity_id) REFERENCES activities(id),
+  FOREIGN KEY (related_activity_id) REFERENCES activities(id)
 );
 
 CREATE TABLE completed_dates (
   id INTEGER PRIMARY KEY,
   habit_id INTEGER,
   date TEXT,
-  FOREIGN KEY (habit_id) REFERENCES habits(id),
+  FOREIGN KEY (habit_id) REFERENCES habits(id)
 );
 
 CREATE TABLE projects (
@@ -230,7 +209,7 @@ CREATE TABLE projects (
   state TEXT,
   percentage_complete REAL,
   category_id INTEGER, -- Foreign key reference to project_categories table
-  FOREIGN KEY (category_id) REFERENCES project_categories(id),
+  FOREIGN KEY (category_id) REFERENCES project_categories(id)
 );
 
 CREATE TABLE project_categories (
@@ -250,7 +229,7 @@ CREATE TABLE sprints (
   name TEXT,
   description TEXT,
   done INTEGER,
-  FOREIGN KEY (project_id) REFERENCES projects(id),
+  FOREIGN KEY (project_id) REFERENCES projects(id)
 );
 
 CREATE TABLE tasks (
@@ -260,5 +239,5 @@ CREATE TABLE tasks (
   description TEXT,
   date_of_doing TEXT,
   timeslot_start_date TEXT,
-  timeslot_end_date TEXT,
+  timeslot_end_date TEXT
 );

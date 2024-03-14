@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -7,20 +11,34 @@ class DatabaseHelper {
 
   static Future<Database> _getDb() async{
     return openDatabase(join(await getDatabasesPath(),_dbName),
-    onCreate: (db, version) async => 
-    await db.execute('CREATE TABLE IF NOT EXISTS tabla_prueba(id INTEGER PRIMARY KEY, name TEXT)'), 
+    onCreate: (db, version) async => await _createTables(db,version),
     version: _version
     );
   }
 
+  static Future<void> _createTables(Database db, int version) async {
+    String schemaSql = await _readSchema();
+    List<String> statements = schemaSql.split(';');
+
+    for (String statement in statements) {
+      if (statement.trim().isNotEmpty) {
+        await db.execute(statement);
+      }
+    }
+  }
+
+  static Future<String> _readSchema() async {
+    return await rootBundle.loadString('assets/database/schema.sql');
+  }
+
   static Future<int> addItem() async{
     final db = await _getDb();
-    return await db.insert("tabla_prueba", {'name':'Jhon'});
+    return await db.insert("sports", {'name':'basketball'});
   }
 
   static Future<List<Map<String, dynamic>>> getAllItems() async {
     final db = await _getDb();
-    return await db.query('tabla_prueba');
+    return await db.query('sports');
   }
   
 }

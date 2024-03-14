@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // Callback function to trigger rebuild of AllItemsWidget
+  void _updateItems() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +32,22 @@ class MyApp extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SquareButton(),
-                  SquareButton(),
+                  SquareButton(updateItems: _updateItems),
+                  SquareButton(updateItems: _updateItems),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SquareButton(),
-                  SquareButton(),
+                  SquareButton(updateItems: _updateItems),
+                  SquareButton(updateItems: _updateItems),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SquareButton(),
-                  SquareButton(),
+                  SquareButton(updateItems: _updateItems),
+                  SquareButton(updateItems: _updateItems),
                 ],
               ),
               SizedBox(height: 20),
@@ -59,7 +69,9 @@ class MyApp extends StatelessWidget {
 }
 
 class SquareButton extends StatelessWidget {
-  const SquareButton({Key? key}) : super(key: key);
+  final Function updateItems;
+
+  const SquareButton({Key? key, required this.updateItems}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +82,11 @@ class SquareButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () async {
           await DatabaseHelper.addItem();
-          // Trigger rebuild of the widget tree
+          // Trigger rebuild of AllItemsWidget
+          updateItems();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')));
+            SnackBar(content: Text('Item added to database')),
+          );
         },
         child: Text('Button'),
       ),
@@ -109,6 +123,3 @@ class AllItemsWidget extends StatelessWidget {
   }
 }
 
-void main() {
-  runApp(MyApp());
-}
