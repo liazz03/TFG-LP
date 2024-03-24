@@ -2,3 +2,6 @@
 - Mock up de register
 - Clase User ¿? En el schema tiene que ir si o si (creo)
 - revisar los constructores de las clases (init de listas ¿?)
+- Events will emit a notification in case the user has enabled the option to. (how to integrate this??)
+- At the end of the day a notification will pop up to remind the user it’s time to complete the habit tracker checklist for that same day. how to integrate notifications
+- If there are no evaluation fields, the 	by default the system will consider each grade weights equally. (no está implementado, de momento hay que añadir si o si assesments con weight)

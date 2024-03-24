@@ -7,6 +7,7 @@ class Goal {
   GoalType? type;
   DateTime? actualDate_achievement;
   bool achieved;
+  int? id;
 
   Goal({
     required this.name,
@@ -14,6 +15,7 @@ class Goal {
     DateTime? targetDate,
     this.actualDate_achievement,
     this.achieved = false,
+    this.id,
   }) {
     _targetDate = targetDate;
     _updateType(this);
@@ -40,4 +42,42 @@ class Goal {
     _targetDate = newTargetDate;
     _updateType(this);
   }
+
+  // object -> sql
+  Map<String, dynamic> toMap() {
+    final map = {
+      'name': name,
+      'description': description,
+      'target_date': _targetDate?.toIso8601String(),
+      'actual_date_achievement': actualDate_achievement?.toIso8601String(),
+      'type': type?.toString(),
+      'achieved': achieved ? 1 : 0,
+    };
+
+    if (id != null) {  // if goal is new it wont have an id yet
+      map['id'] = id;  // if it is an update it will have an id
+    }
+
+    return map;
+  }
+
+  // sql -> object
+  static Goal fromMap(Map<String, dynamic> map) {
+
+    DateTime? act_dat_ach;
+    if (map['actual_date_achievement'] != null){
+      act_dat_ach = DateTime.tryParse(map['actual_date_achievement']);
+    } 
+
+    return Goal(
+      id: map['id'],
+      name: map['name'],
+      description: map['description'],
+      targetDate: DateTime.tryParse(map['target_date']),
+      actualDate_achievement: act_dat_ach,
+      achieved: map['achieved'] == 1,
+    );
+  }
+
 }
+

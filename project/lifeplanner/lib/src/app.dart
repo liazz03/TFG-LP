@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
+import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -14,7 +15,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {});
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Life Planner',
@@ -33,49 +34,48 @@ class _MyAppState extends State<MyApp> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SquareButton(updateItems: _updateItems),
                     WeeklyPlannerButton(updateItems: _updateItems),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
                     MothlyCalendarButton(updateItems: _updateItems),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     WeeklyScheduleButton(updateItems: _updateItems),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
                     ToDoButton(updateItems: _updateItems),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     HabitTrackerButton(updateItems: _updateItems),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
                     AcademicsButton(updateItems: _updateItems),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     FinanceButton(updateItems: _updateItems),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
                     GoalsButton(updateItems: _updateItems),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     ProjectsButton(updateItems: _updateItems),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
                     SportsButton(updateItems: _updateItems),
-                    EventsButton(updateItems: _updateItems),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    EventsButton(updateItems: _updateItems),
                     JobButton(updateItems: _updateItems),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     VacationsButton(updateItems: _updateItems),
                   ],
                 ),
@@ -93,33 +93,6 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-
-class SquareButton extends StatelessWidget {
-  final Function updateItems;
-
-  const SquareButton({Key? key, required this.updateItems}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      height: 100,
-      margin: EdgeInsets.all(10),
-      child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
-          );
-        },
-        child: Text('Button add db'),
       ),
     );
   }
@@ -319,12 +292,11 @@ class GoalsButton extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          // Navigate to the GoalsScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => GoalsScreen()),
           );
         },
         child: Text('Goals'),
@@ -332,6 +304,7 @@ class GoalsButton extends StatelessWidget {
     );
   }
 }
+
 
 class ProjectsButton extends StatelessWidget {
   final Function updateItems;

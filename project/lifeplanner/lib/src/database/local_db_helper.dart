@@ -13,6 +13,10 @@ class DatabaseHelper {
     );
   }
 
+  static Future<Database> getDb() async{
+    return await _getDb();
+  }
+
   static Future<void> _createTables(Database db, int version) async {
     String schemaSql = await _readSchema();
     List<String> statements = schemaSql.split(';');

@@ -1,4 +1,5 @@
 import 'package:lifeplanner/src/modules/Activity/activity.dart';
+import 'package:lifeplanner/src/modules/Organization/project.dart';
 enum Month {
   January,
   February,
@@ -19,6 +20,7 @@ class Habit {
   String description;
   List<DateTime> completedDates;
   Activity? related_activity;
+  Project? related_project;
 
 
   Habit({
@@ -26,6 +28,7 @@ class Habit {
     required this.description,
     this.completedDates = const [],
     this.related_activity,
+    this.related_project
   });
 }
 

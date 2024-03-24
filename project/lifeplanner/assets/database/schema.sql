@@ -34,8 +34,10 @@ CREATE TABLE event_categories (
 
 CREATE TABLE assessments (
   id INTEGER PRIMARY KEY,
+  subject_id INTEGER,
   name TEXT,
-  weight INTEGER
+  weight INTEGER,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
 
 CREATE TABLE grades (

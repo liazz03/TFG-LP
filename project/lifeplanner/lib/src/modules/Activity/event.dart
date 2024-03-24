@@ -1,12 +1,13 @@
-import 'package:lifeplanner/src/modules/Activity/activity.dart';
 import 'package:schedules/schedules.dart';
 
 enum EVENT_STATE {Scheduled, Finished, Cancelled,}
 
-class Event extends Activity
+class Event
 {
+  String name;
+  String description;
   Schedule date_time;
   EVENT_STATE state;
 
-  Event(name, description, this.date_time, this.state): super(name, description);
+  Event( this.name, this.description, this.date_time, this.state);
 }
