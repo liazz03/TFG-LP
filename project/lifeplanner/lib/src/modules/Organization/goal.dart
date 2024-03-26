@@ -43,6 +43,10 @@ class Goal {
     _updateType(this);
   }
 
+  DateTime? get targetDate{
+    return this._targetDate;
+  }
+
   // object -> sql
   Map<String, dynamic> toMap() {
     final map = {

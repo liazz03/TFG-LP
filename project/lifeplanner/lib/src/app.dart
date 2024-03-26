@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
+import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -188,12 +189,11 @@ class ToDoButton extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          // Navigate to the TasksScreen when the button is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TasksScreen()),
           );
         },
         child: Text('To-Dos'),
@@ -290,6 +290,7 @@ class GoalsButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
+      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {

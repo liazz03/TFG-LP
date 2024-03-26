@@ -33,10 +33,6 @@ class GoalDao {
     final db = await dbProvider;
     final List<Map<String, dynamic>> maps = await db.query('goals');
 
-    print(List.generate(maps.length, (i) {
-      return Goal.fromMap(maps[i]);
-    }));
-
     return List.generate(maps.length, (i) {
       return Goal.fromMap(maps[i]);
     });
