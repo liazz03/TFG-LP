@@ -5,3 +5,12 @@
 - Events will emit a notification in case the user has enabled the option to. (how to integrate this??)
 - At the end of the day a notification will pop up to remind the user it’s time to complete the habit tracker checklist for that same day. how to integrate notifications
 - If there are no evaluation fields, the 	by default the system will consider each grade weights equally. (no está implementado, de momento hay que añadir si o si assesments con weight)
+
+- TASKS: En edit no se controla que la descripción no esté vacía
+- TASKS: En Tasks hay que borrar la clase Cancelled, no sirve 
+- TASKS: En edit no se puede añadir una hora al nuevo deadline lo pone a las 00 por defecto.
+- TASKS: Estaría bien quizás que no aparezca la opción de modificar o completar (check) un task si ya está completado.
+
+- SPORTS, TASKS: cuando se seleccione un timeslot para hacer esto y ya haya alguna actividad o lo que sea alli, tiene que saltar un warning.
+- SPORTS: En el form de ADD -> tengo que poder remove un timeslot si me he equivocado.
+- SPORTS: añadir dedication time (directamente o añadir en weekly planner)

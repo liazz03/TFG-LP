@@ -1,3 +1,9 @@
+CREATE TABLE system_info (
+  id INTEGER PRIMARY KEY CHECK (id = 0),
+  last_enter TEXT
+);
+
+
 -- ACTIVITY ---------------------------------------------
 CREATE TABLE week_activity (
   id INTEGER PRIMARY KEY,
@@ -64,8 +70,12 @@ CREATE TABLE sports (
   id INTEGER PRIMARY KEY,
   name TEXT,
   description TEXT,
-  schedule TEXT
+  dedication_time_x_week INTEGER,
+  actual_dedication_time_x_week INTEGER,
+  total_dedicated_time INTEGER,
+  schedule TEXT -- Storing the entire timetable as a JSON-encoded string
 );
+
 
 CREATE TABLE subjects (
   id INTEGER PRIMARY KEY,

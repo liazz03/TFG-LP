@@ -1,12 +1,12 @@
 import 'package:lifeplanner/src/modules/Activity/activity.dart';
 import 'package:lifeplanner/src/modules/Activity/grades.dart';
-import 'package:schedules/schedules.dart';
+import 'package:lifeplanner/src/modules/Organization/Schedule_def.dart';
 
 enum Evaluation_type { EXAM, ASSIGNMENT }
 
 class Subject extends Activity
 {
-  Weekly schedule;
+  Schedule_def schedule;
   int dedication_study_time_x_week;
   double target_average;
   int room;

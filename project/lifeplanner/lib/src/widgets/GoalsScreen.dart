@@ -218,7 +218,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No goals found.'));
+            return Center(child: Text('You have no goals registered!'));
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
+import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 
 class MyApp extends StatefulWidget {
@@ -11,6 +13,23 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLastEnter();
+  }
+
+  Future<void> _checkLastEnter() async {
+    SystemInfoDao _systemInfoDao = SystemInfoDao();
+    DateTime? lastEnter = await _systemInfoDao.getLastEnterDate();
+    DateTime now = DateTime.now();
+
+    if (lastEnter == null ) {
+      await _systemInfoDao.setLastEnterDate(now);
+    }
+  }
+
   // Callback function to trigger rebuild of AllItemsWidget
   void _updateItems() {
     setState(() {});
@@ -26,6 +45,7 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('Life Planner'),
+          centerTitle: true, 
         ),
         body: SingleChildScrollView(
           child: Center(
@@ -79,16 +99,6 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     VacationsButton(updateItems: _updateItems),
                   ],
-                ),
-                SizedBox(height: 20),
-                Container(
-                  width: 300, // Adjust width as needed
-                  height: 200, // Adjust height as needed
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: AllItemsWidget(),
                 ),
               ],
             ),
@@ -187,6 +197,7 @@ class ToDoButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
+      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
@@ -342,15 +353,15 @@ class SportsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 150,
+      color: Color.fromARGB(255, 158, 85, 85),
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          // Navigate to the SportsScreen when the button is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SportsScreen()),
           );
         },
         child: Text('Sports'),
@@ -358,6 +369,7 @@ class SportsButton extends StatelessWidget {
     );
   }
 }
+
 
 class EventsButton extends StatelessWidget {
   final Function updateItems;
@@ -437,32 +449,4 @@ class VacationsButton extends StatelessWidget {
   }
 }
 
-class AllItemsWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: DatabaseHelper.getAllItems(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No items found.'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final item = snapshot.data![index];
-              return ListTile(
-                title: Text(item['name'].toString()),
-                // Other item properties can be displayed here
-              );
-            },
-          );
-        }
-      },
-    );
-  }
-}
 

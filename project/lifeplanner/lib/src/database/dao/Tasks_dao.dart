@@ -54,4 +54,23 @@ class TasksDao {
     }
     return null;
   }
+
+  Future<void> markOverdueTasksAsLate() async {
+    final db = await dbProvider;
+    final now = DateTime.now().toIso8601String();
+
+    // Find all tasks that are overdue and not already completed or cancelled
+    List<Tasks> tasks = await getAllTasks();
+    List<Tasks> overdueTasks = tasks.where((task) =>
+        task.state != TASKS_STATE.COMPLETED &&
+        task.deadline != null &&
+        task.deadline!.isBefore(DateTime.now())).toList();
+
+    // Update each overdue task's state to 'LATE'
+    for (Tasks task in overdueTasks) {
+      task.state = TASKS_STATE.LATE;
+      await updateTask(task);
+    }
+  }
+
 }
