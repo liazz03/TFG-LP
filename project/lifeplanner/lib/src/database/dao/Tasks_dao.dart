@@ -34,11 +34,32 @@ class TasksDao {
 
   Future<List<Tasks>> getAllTasks() async {
     final db = await dbProvider;
-    final List<Map<String, dynamic>> maps = await db.query('tasks');
 
-    return List.generate(maps.length, (i) {
+    List<Map<String, dynamic>> maps = await db.query('tasks');
+
+    // Update Overdue tasks
+    List<Tasks> tasks_obj = List.generate(maps.length, (i) {
       return Tasks.fromMap(maps[i]);
     });
+
+    List<Tasks> overdueTasks = tasks_obj.where((task) =>
+        task.state != TASKS_STATE.COMPLETED &&
+        task.deadline != null &&
+        task.deadline!.isBefore(DateTime.now())).toList();
+
+    for (Tasks task in overdueTasks) {
+      task.state = TASKS_STATE.LATE;
+      await updateTask(task);
+    }
+
+    // return fully updated tasks
+    final List<Map<String, dynamic>> maps_f ;
+    maps_f = await db.query('tasks');
+
+    return List.generate(maps_f.length, (i) {
+      return Tasks.fromMap(maps_f[i]);
+    });
+     
   }
 
   Future<Tasks?> getTaskById(int id) async {
@@ -53,24 +74,6 @@ class TasksDao {
       return Tasks.fromMap(maps.first);
     }
     return null;
-  }
-
-  Future<void> markOverdueTasksAsLate() async {
-    final db = await dbProvider;
-    final now = DateTime.now().toIso8601String();
-
-    // Find all tasks that are overdue and not already completed or cancelled
-    List<Tasks> tasks = await getAllTasks();
-    List<Tasks> overdueTasks = tasks.where((task) =>
-        task.state != TASKS_STATE.COMPLETED &&
-        task.deadline != null &&
-        task.deadline!.isBefore(DateTime.now())).toList();
-
-    // Update each overdue task's state to 'LATE'
-    for (Tasks task in overdueTasks) {
-      task.state = TASKS_STATE.LATE;
-      await updateTask(task);
-    }
   }
 
 }

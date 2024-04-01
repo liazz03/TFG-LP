@@ -14,7 +14,6 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   void initState() {
     super.initState();
-    _markOverdueTasksAsLate(); // Call the method on initState to check tasks every time the screen loads
   }
 
 
@@ -76,11 +75,6 @@ class _TasksScreenState extends State<TasksScreen> {
         },
       ),
     );
-  }
-
-  Future<void> _markOverdueTasksAsLate() async {
-    await _tasksDao.markOverdueTasksAsLate();
-    setState(() {}); 
   }
 
   void _MarkAsCompleteTask(int? id) async {
@@ -224,7 +218,7 @@ class _EditTaskFormState extends State<EditTaskForm> {
     _deadline = widget.editableTask.deadline;
     _taskState = widget.editableTask.state;
 
-    _dateOfDoing = widget.editableTask.timeslot?.startDate; // Assuming you want to edit an existing timeslot
+    _dateOfDoing = widget.editableTask.timeslot?.startDate; 
     // If timeslot has start and end times, initialize them here as well
     _startTime_dateofdoing = TimeOfDay.fromDateTime(widget.editableTask.timeslot?.startDate ?? DateTime.now());
     _endTime_dateofdoing = TimeOfDay.fromDateTime(widget.editableTask.timeslot?.endDate ?? DateTime.now());

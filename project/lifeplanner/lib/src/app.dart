@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
+import 'package:lifeplanner/src/database/dao/Tasks_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
+import 'package:lifeplanner/src/widgets/EventsScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
@@ -14,6 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
+  // OPERATIONS ON INITIALIZATION
   @override
   void initState() {
     super.initState();
@@ -383,12 +386,11 @@ class EventsButton extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          // Navigate to the EventsScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EventsScreen()),
           );
         },
         child: Text('Events'),
@@ -396,6 +398,7 @@ class EventsButton extends StatelessWidget {
     );
   }
 }
+
 
 class JobButton extends StatelessWidget {
   final Function updateItems;
