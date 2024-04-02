@@ -1,4 +1,5 @@
 import 'package:lifeplanner/src/database/local_db_helper.dart';
+import 'package:lifeplanner/src/modules/Activity/events_category.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:schedules/schedules.dart';
 import '../../modules/Activity/event.dart';
@@ -85,5 +86,33 @@ class EventsDao {
     } else {
       return null;
     }
+  }
+
+
+  Future<List<EventCategory>> getAllCategories() async {
+    final db = await dbProvider;
+    final List<Map<String, dynamic>> maps = await db.query('event_categories');
+
+    return List.generate(maps.length, (i) {
+      return EventCategory.fromMap(maps[i]);
+    });
+  }
+
+    Future<int> addCategory(String categoryName) async {
+    final db = await dbProvider;
+    return await db.insert(
+      'event_categories',
+      {'category': categoryName},
+      conflictAlgorithm: ConflictAlgorithm.replace, // To handle the unique constraint
+    );
+  }
+
+  Future<int> deleteCategory(int categoryId) async {
+    final db = await dbProvider;
+    return await db.delete(
+      'event_categories',
+      where: 'id = ?',
+      whereArgs: [categoryId],
+    );
   }
 }

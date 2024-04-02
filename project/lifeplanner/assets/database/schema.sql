@@ -29,6 +29,7 @@ CREATE TABLE events (
   description TEXT,
   timeslot_start_date TEXT,
   timeslot_end_date TEXT,
+  state TEXT,
   category_id INTEGER, -- Foreign key reference to event_categories table
   FOREIGN KEY (category_id) REFERENCES event_categories(id)
 );

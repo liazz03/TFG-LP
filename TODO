@@ -14,3 +14,8 @@
 - SPORTS, TASKS: cuando se seleccione un timeslot para hacer esto y ya haya alguna actividad o lo que sea alli, tiene que saltar un warning.
 - SPORTS: En el form de ADD -> tengo que poder remove un timeslot si me he equivocado.
 - SPORTS: añadir dedication time (directamente o añadir en weekly planner)
+
+- EVENTS: cuando añado un nuevo category se vuelve a cargar el modal sheet de add event de nuevo y es incomodo porque tengo que volver a introducir toods los datos.
+- EVENTS: de momento las categorías, una vez añadidas no se pueden borrar.
+- EVENTS: hay un bug, si no selecciono una hora para el start date o para el enddate, me salta error (mirar debug console)
+
