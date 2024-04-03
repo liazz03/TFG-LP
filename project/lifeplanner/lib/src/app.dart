@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
-import 'package:lifeplanner/src/database/dao/Tasks_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/EventsScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
@@ -384,6 +383,7 @@ class EventsButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
+      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {

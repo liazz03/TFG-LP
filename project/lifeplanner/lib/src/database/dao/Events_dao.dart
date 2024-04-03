@@ -1,7 +1,6 @@
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/modules/Activity/events_category.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:schedules/schedules.dart';
 import '../../modules/Activity/event.dart';
 
 class EventsDao {
@@ -31,6 +30,7 @@ class EventsDao {
     );
   }
 
+
   Future<List<Event>> getAllEvents() async {
     final db = await dbProvider;
     final List<Map<String, dynamic>> eventMaps = await db.query('events');
@@ -38,15 +38,24 @@ class EventsDao {
       return Event.fromMap(eventMaps[i]);
     });
 
-    // Optionally fetch category name for each event
-    for (var event in events) {
-      if (event.categoryId != null) {
-        String categoryName = await getCategoryNameById(event.categoryId!);
-        // Do something with categoryName, like adding it to the Event object if it has a field for it
+    //Update finished events
+    List<Event> passedEvents = events.where((event) {
+      return (event.timeslot.endDate != null && event.timeslot.endDate!.isBefore(DateTime.now())) ||
+            (event.timeslot.endDate == null && event.timeslot.startDate.isBefore(DateTime.now()));
+    }).toList();
+
+    for (Event event in passedEvents) {
+      if (event.state != EVENT_STATE.Finished) {
+        event.state = EVENT_STATE.Finished;
+        await updateEvent(event); 
       }
     }
 
-    return events;
+    // return all events
+    final List<Map<String, dynamic>> updatedEventMaps = await db.query('events');
+    return List.generate(updatedEventMaps.length, (i) {
+      return Event.fromMap(updatedEventMaps[i]);
+    });
   }
 
   Future<String> getCategoryNameById(int categoryId) async {
@@ -78,8 +87,6 @@ class EventsDao {
       // Optionally, fetch category name if needed
       if (event.categoryId != null) {
         String categoryName = await getCategoryNameById(event.categoryId!);
-        // Here, you could add the category name to the Event object if it has a property for it
-        // For example: event.categoryName = categoryName;
       }
 
       return event;

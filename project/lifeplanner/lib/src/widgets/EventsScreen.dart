@@ -34,8 +34,8 @@ class _EventsScreenState extends State<EventsScreen> {
       _eventsFuture = _eventsDao.getAllEvents();
     });
   }
-  
-  @override
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -58,48 +58,112 @@ class _EventsScreenState extends State<EventsScreen> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No events found'));
           } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final event = snapshot.data![index];
-                // Formateando la fecha de inicio para mostrar
-                String startDateText = DateFormat('yyyy-MM-dd').format(event.timeslot.startDate);
-                // Construyendo el texto del estado
-                String stateText = event.state.toString().split('.').last;
-                // Construyendo el subtítulo condicionalmente
-                String subtitleText = "Descripción: ${event.description}\n"
-                    "Estado: $stateText\n"
-                    "Inicio: $startDateText";
-                if (event.timeslot.endDate != null) {
-                  String endDateText = DateFormat('yyyy-MM-dd').format(event.timeslot.endDate!);
-                  subtitleText += "\nFin: $endDateText";
-                }
+            List<Event> scheduledEvents = snapshot.data!
+                .where((event) => event.state == EVENT_STATE.Scheduled)
+                .toList()
+              ..sort((a, b) => a.timeslot.startDate.compareTo(b.timeslot.startDate));
+            List<Event> finishedEvents = snapshot.data!
+                .where((event) => event.state == EVENT_STATE.Finished)
+                .toList()
+              ..sort((a, b) => a.timeslot.startDate.compareTo(b.timeslot.startDate));
 
-                return ListTile(
+            return ListView(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
+                  ),
+                  child: Text('Upcoming Events', style: Theme.of(context).textTheme.headline6),
+                ),
+                ...scheduledEvents.map((event) => ListTile(
                   title: Text(event.name),
                   subtitle: Text(
-                    subtitleText,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
+                    '${event.description}\n'
+                    'Starts: ${DateFormat('MMM d, HH:mm').format(event.timeslot.startDate)}'
+                    '${event.timeslot.endDate != null ? '\nEnds: ${DateFormat('MMM d, HH:mm').format(event.timeslot.endDate!)}' : ''}'
                   ),
-                  onTap: () {
-                    // Acción al tocar, por ejemplo, navegar a una pantalla de detalles del evento
-                  },
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit),
-                    iconSize: 30,
-                    onPressed: () {
-                      // Acción para editar el evento
-                    },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          // Implement edit event functionality
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: const Color.fromARGB(255, 151, 18, 9)),
+                        onPressed: () => _confirmDeleteEvent(event.id),
+                      ),
+                    ],
                   ),
-                );
-              },
+                )),
+                SizedBox(height: 8.0),
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
+                  ),
+                  child: Text('Finished Events', style: Theme.of(context).textTheme.headline6),
+                ),
+                ...finishedEvents.map((event) => ListTile(
+                  title: Text(event.name),
+                  subtitle: Text(
+                    '${event.description}\n'
+                    'Starts: ${DateFormat('MMM d, HH:mm').format(event.timeslot.startDate)}'
+                    '${event.timeslot.endDate != null ? '\nEnds: ${DateFormat('MMM d, HH:mm').format(event.timeslot.endDate!)}' : ''}'
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.close, color: const Color.fromARGB(255, 131, 20, 12)),
+                        onPressed: () => _confirmDeleteEvent(event.id),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
             );
           }
         },
       ),
     );
   }
+
+
+
+  void _confirmDeleteEvent(int? id) {
+    if (id == null) return;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Event'),
+          content: Text('Are you sure you want to delete this event?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Dismiss the dialog
+                await _eventsDao.deleteEvent(id);
+                _loadEvents(); // Refresh the list of events after deletion
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Event deleted successfully.")));
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 
   Future<void> _showAddCategoryDialog() async {
     String categoryName = '';
@@ -276,7 +340,7 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
 
-    Future<void> _pickEndDate(BuildContext context) async {
+  Future<void> _pickEndDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _endDate ?? DateTime.now(),

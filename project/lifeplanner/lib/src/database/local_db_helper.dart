@@ -3,6 +3,18 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
+
+  // Singleton pattern
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  
+  // Private constructor
+  DatabaseHelper._internal();
+
+  // Public factory constructor
+  factory DatabaseHelper() {
+    return _instance;
+  }
+
   static const int _version = 1;
   static const String _dbName = "user_db";
 
