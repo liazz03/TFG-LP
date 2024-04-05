@@ -5,6 +5,7 @@ import 'package:lifeplanner/src/widgets/EventsScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
+import 'package:lifeplanner/src/widgets/VacationsScreen.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -319,7 +320,6 @@ class GoalsButton extends StatelessWidget {
   }
 }
 
-
 class ProjectsButton extends StatelessWidget {
   final Function updateItems;
 
@@ -413,11 +413,10 @@ class JobButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+          // Navigate to the EventsScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EventsScreen()),
           );
         },
         child: Text('Job'),
@@ -436,14 +435,14 @@ class VacationsButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
+      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          // Navigate to the VacationsScreen when the button is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => VacationsScreen()), // Change this line
           );
         },
         child: Text('Vacations'),
@@ -451,5 +450,4 @@ class VacationsButton extends StatelessWidget {
     );
   }
 }
-
 

@@ -171,13 +171,11 @@ CREATE TABLE jobs (
 
 CREATE TABLE vacations (
   id INTEGER PRIMARY KEY,
-  job_id INTEGER,
-  schedule_start_date TEXT,
-  schedule_end_date TEXT,
+  start_date TEXT,
+  end_date TEXT,
   days INTEGER,
   title TEXT,
-  type TEXT,
-  FOREIGN KEY (job_id) REFERENCES jobs(id)
+  type TEXT
 );
 
 --ORGANIZATION-------------------------
