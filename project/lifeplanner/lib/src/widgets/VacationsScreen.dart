@@ -56,7 +56,7 @@ class _VacationsScreenState extends State<VacationsScreen> {
                       IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: () {
-                          // Add action to edit this vacation
+                          _showEditVacationSheet(vacation);
                         },
                       ),
                       IconButton(
@@ -75,6 +75,102 @@ class _VacationsScreenState extends State<VacationsScreen> {
         },
       ),
     );
+  }
+
+  void _showEditVacationSheet(Vacation vacation) {
+    // Initialize form with vacation data
+    _title = vacation.title;
+    _startDate = vacation.start_date;
+    _endDate = vacation.end_date;
+    _type = vacation.type; // Note: Type is not editable as per requirement
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Edit Vacation', style: Theme.of(context).textTheme.headline6),
+                  TextFormField(
+                    initialValue: _title,
+                    decoration: InputDecoration(labelText: 'Title'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a title';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => _title = value!,
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.date_range),
+                    title: Text('Start Date'),
+                    subtitle: Text(_startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : 'No date chosen'),
+                    onTap: () => _pickStartDate(context, isEditing: true), // Modified to include isEditing
+                  ),
+                  // Conditionally add the end date picker
+                  if (_type != VacationType.FREE_DAY)
+                    ListTile(
+                      leading: Icon(Icons.date_range),
+                      title: Text('End Date'),
+                      subtitle: Text(_endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'No date chosen'),
+                      onTap: () => _pickEndDate(context, isEditing: true), // Modified to include isEditing
+                    ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        _updateVacation(vacation); // Modified to pass the entire vacation object
+                      }
+                    },
+                    child: Text('Update Vacation'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+  void _updateVacation(Vacation vacation) async {
+    // Validate the form fields
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      
+      // Calculate the days difference if the end date is provided
+      if (_endDate != null && _startDate != null) {
+        vacation.days = _endDate!.difference(_startDate!).inDays + 1;
+      }
+      
+      // Update the vacation object with the new values from the form
+      vacation.title = _title;
+      vacation.start_date = _startDate!;
+      if (vacation.type != VacationType.FREE_DAY) {
+        vacation.end_date = _endDate!;
+      } else {
+        vacation.end_date = _startDate!; 
+      }
+      
+      // Call the DAO to update the vacation in the database
+      await _vacationsDao.updateVacation(vacation).then((_) {
+        Navigator.of(context).pop(); // Close the modal sheet
+        setState(() {}); // Refresh the list to show updated details
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vacation updated successfully")));
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error updating vacation: $error")));
+      });
+    }
   }
 
   void _confirmDeleteVacation(int? id) {
@@ -182,34 +278,40 @@ class _VacationsScreenState extends State<VacationsScreen> {
     );
   }
 
-  Future<void> _pickStartDate(BuildContext context) async {
+  Future<void> _pickStartDate(BuildContext context, {bool isEditing = false}) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _startDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
     if (pickedDate != null) {
       setState(() {
         _startDate = pickedDate;
+        // For FREE_DAY types, automatically adjust the end date to match the start date
         if (_type == VacationType.FREE_DAY) {
-          _endDate = _startDate; // For FREE_DAY, end date is the same as start date
+          _endDate = _startDate;
         }
       });
     }
   }
 
-  Future<void> _pickEndDate(BuildContext context) async {
+  Future<void> _pickEndDate(BuildContext context, {bool isEditing = false}) async {
+    DateTime initialEndDate = _endDate ?? DateTime.now();
+    if (_startDate != null && initialEndDate.isBefore(_startDate!)) {
+        initialEndDate = _startDate!;
+    }
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: _startDate ?? DateTime.now(),
+      initialDate: initialEndDate,
       firstDate: _startDate ?? DateTime.now(),
       lastDate: DateTime(2101),
     );
 
     if (pickedDate != null) {
       setState(() {
-       _endDate = pickedDate;
+        _endDate = pickedDate;
       });
     }
   }
