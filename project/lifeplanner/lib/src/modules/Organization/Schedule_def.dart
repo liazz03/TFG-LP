@@ -18,7 +18,7 @@ class Schedule_def {
 
     // Return the schedule as part of a Map, but not JSON-encoded here
     return {
-      'schedule': scheduleMaps, // This is a List<Map<String, dynamic>>, not a String
+      'schedule': scheduleMaps, // List<Map<String, dynamic>>
     };
   }
 

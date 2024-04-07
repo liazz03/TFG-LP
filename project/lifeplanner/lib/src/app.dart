@@ -3,6 +3,7 @@ import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/EventsScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
+import 'package:lifeplanner/src/widgets/JobScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 import 'package:lifeplanner/src/widgets/VacationsScreen.dart';
@@ -387,7 +388,6 @@ class EventsButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
-          // Navigate to the EventsScreen
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => EventsScreen()),
@@ -413,10 +413,9 @@ class JobButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-          // Navigate to the EventsScreen
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EventsScreen()),
+            MaterialPageRoute(builder: (context) => JobsScreen()),
           );
         },
         child: Text('Job'),
@@ -439,10 +438,9 @@ class VacationsButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
-          // Navigate to the VacationsScreen when the button is pressed
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => VacationsScreen()), // Change this line
+            MaterialPageRoute(builder: (context) => VacationsScreen()),
           );
         },
         child: Text('Vacations'),

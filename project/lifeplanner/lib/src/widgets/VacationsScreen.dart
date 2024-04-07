@@ -78,7 +78,7 @@ class _VacationsScreenState extends State<VacationsScreen> {
   }
 
   void _confirmDeleteVacation(int? id) {
-    if (id == null) return; // Safety check
+    if (id == null) return;
 
     showDialog(
       context: context,
@@ -206,42 +206,43 @@ class _VacationsScreenState extends State<VacationsScreen> {
       firstDate: _startDate ?? DateTime.now(),
       lastDate: DateTime(2101),
     );
+
     if (pickedDate != null) {
       setState(() {
-              _endDate = pickedDate;
-            });
-          }
-        }
+       _endDate = pickedDate;
+      });
+    }
+  }
 
-        void _addVacation() {
-          if (_startDate == null || (_type != VacationType.FREE_DAY && _endDate == null)) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill all the fields')));
-            return;
-          }
+  void _addVacation() {
+    if (_startDate == null || (_type != VacationType.FREE_DAY && _endDate == null)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill all the fields')));
+      return;
+    }
 
-          // Calculate days difference
-          int days = _endDate!.difference(_startDate!).inDays + 1; // Add one to include the start date
+    // Calculate days difference
+    int days = _endDate!.difference(_startDate!).inDays + 1; // Add one to include the start date
 
-          // Create the new vacation object
-          Vacation newVacation = Vacation(
-            start_date: _startDate!,
-            end_date: _type == VacationType.FREE_DAY ? _startDate! : _endDate!,
-            days: days,
-            title: _title,
-            type: _type,
-          );
+    // Create object
+    Vacation newVacation = Vacation(
+      start_date: _startDate!,
+      end_date: _type == VacationType.FREE_DAY ? _startDate! : _endDate!,
+      days: days,
+      title: _title,
+      type: _type,
+    );
 
-          // Save it to the database
-          _vacationsDao.addVacation(newVacation).then((id) {
-            if (id > 0) {
-              Navigator.of(context).pop(); // Close the bottom sheet
-              setState(() {}); // Trigger a rebuild, which will refresh the list
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vacation added successfully")));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to add vacation")));
-            }
-          }).catchError((error) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $error")));
-          });
-        }
+    // Save it to db
+    _vacationsDao.addVacation(newVacation).then((id) {
+      if (id > 0) {
+        Navigator.of(context).pop(); 
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vacation added successfully")));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to add vacation")));
+      }
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $error")));
+    });
+  }
 }

@@ -47,7 +47,22 @@ class VacationsDao {
     if (maps.isNotEmpty) {
       return Vacation.fromMap(maps.first);
     } else {
-      return null; // Vacation not found
+      return null; 
     }
+  }
+
+  Future<List<Vacation>> getVacationsByJobId(int jobId) async {
+    final db = await dbProvider;
+    
+    // Query db
+    final List<Map<String, dynamic>> maps = await db.query(
+      'vacations',
+      where: 'job_id = ?',
+      whereArgs: [jobId],
+    );
+
+    return List.generate(maps.length, (i) {
+      return Vacation.fromMap(maps[i]);
+    });
   }
 }

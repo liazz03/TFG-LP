@@ -3,7 +3,7 @@ import 'package:schedules/schedules.dart';
 enum VacationType { FREE_DAY, LEAVE, VACATION, HOLIDAY }
 
 class Vacation {
-  int? id; // Make `id` nullable
+  int? id; 
   DateTime start_date;
   DateTime end_date;
   int days;
@@ -25,10 +25,10 @@ class Vacation {
       'end_date': end_date.toIso8601String(),
       'days': days,
       'title': title,
-      'type': type.toString().split('.').last, // Convert enum to string
+      'type': type.toString().split('.').last, // enum to string
     };
 
-    // Include `id` in the map only if it is not null
+    // Include `id` in the map only if not null
     if (id != null) {
       map['id'] = id;
     }

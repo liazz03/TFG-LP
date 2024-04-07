@@ -159,12 +159,9 @@ CREATE TABLE saving_contributions (
 ----JOB----------------
 CREATE TABLE jobs (
   id INTEGER PRIMARY KEY,
-  schedule_frequency INTEGER, -- Weekly : ver si hace falta a lo mejor para jobs puede ir fixed
-  schedule_weekdays TEXT, -- Weekly
-  schedule_start_date TEXT, --  Weekly 
-  schedule_end_date TEXT, -- Weekly
+  schedule TEXT, -- Storing the entire timetable as a JSON-encoded string
   type TEXT,
-  hours INTEGER,
+  total_hours INTEGER,
   income_id INTEGER,
   FOREIGN KEY (income_id) REFERENCES incomes(id)
 );
@@ -175,7 +172,9 @@ CREATE TABLE vacations (
   end_date TEXT,
   days INTEGER,
   title TEXT,
-  type TEXT
+  type TEXT,
+  job_id INTEGER, -- vacations can have a related job (not included in the class instance)
+  FOREIGN KEY (job_id) REFERENCES jobs(id)
 );
 
 --ORGANIZATION-------------------------

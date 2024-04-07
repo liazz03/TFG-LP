@@ -320,7 +320,7 @@ class _SportsScreenState extends State<SportsScreen> {
                               total_dedicated_time: sport.total_dedicated_time,
                             );
                             await _sportsDao.updateSport(updatedSport);
-                            Navigator.pop(context); // Close the modal bottom sheet
+                            Navigator.pop(context);
                             setState(() {
                               _loadSports(); // Refresh the list of sports
                             });
@@ -348,76 +348,75 @@ class _SportsScreenState extends State<SportsScreen> {
 
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Sports'),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: _showAddSportSheet,
-        ),
-      ],
-    ),
-    body: FutureBuilder<List<Sport>>(
-      future: _sportsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('You have no sports registered!'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final sport = snapshot.data![index];
-              double progress = sport.actual_dedication_time_x_week / sport.dedication_time_x_week;
-              
-              return ListTile(
-                title: Row(
-                  children: [
-                    Expanded(
-                      // Wrap title in an Expanded to ensure it takes up remaining space
-                      child: Text(sport.name),
-                    ),
-                    SizedBox(width: 8), // Add some spacing between title and progress bar
-                    // Progress bar
-                    Container(
-                      width: 100, // Width of the progress bar
-                      height: 10, // Height of the progress bar
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sports'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _showAddSportSheet,
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<Sport>>(
+        future: _sportsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('You have no sports registered!'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final sport = snapshot.data![index];
+                double progress = sport.actual_dedication_time_x_week / sport.dedication_time_x_week;
+                
+                return ListTile(
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(sport.name),
                       ),
-                    ),
-                    SizedBox(width: 8), // Add some spacing between progress bar and icons
-                    // Icons
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.black),
-                      onPressed: () => _showEditSportSheet(sport),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Colors.red),
-                      onPressed: () => _confirmDeleteSport(sport.id),
-                    ),
-                  ],
-                ),
-                subtitle: Text('${sport.description ?? "No description provided"}\n'
-                    'Desired dedication time per week: ${sport.dedication_time_x_week} hours\n'
-                    'Dedication time this week: ${sport.actual_dedication_time_x_week} hours\n'
-                    'Total dedicated time: ${sport.total_dedicated_time}'),
-                isThreeLine: true,
-              );
-            },
-          );
-        }
-      },
-    ),
-  );
-}
+                      SizedBox(width: 8),
+                      // Progress bar
+                      Container(
+                        width: 100, 
+                        height: 10, 
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                        ),
+                      ),
+                      SizedBox(width: 8), 
+                      // Icons
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.black),
+                        onPressed: () => _showEditSportSheet(sport),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red),
+                        onPressed: () => _confirmDeleteSport(sport.id),
+                      ),
+                    ],
+                  ),
+                  subtitle: Text('${sport.description ?? "No description provided"}\n'
+                      'Desired dedication time per week: ${sport.dedication_time_x_week} hours\n'
+                      'Dedication time this week: ${sport.actual_dedication_time_x_week} hours\n'
+                      'Total dedicated time: ${sport.total_dedicated_time}'),
+                  isThreeLine: true,
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
 
 
 }
