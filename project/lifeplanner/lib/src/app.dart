@@ -3,6 +3,7 @@ import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/EventsScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
+import 'package:lifeplanner/src/widgets/HabitTrackerScreen.dart';
 import 'package:lifeplanner/src/widgets/JobScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
@@ -201,7 +202,6 @@ class ToDoButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
-      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
@@ -211,7 +211,7 @@ class ToDoButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => TasksScreen()),
           );
         },
-        child: Text('To-Dos'),
+        child: Text('To-Dos - D'),
       ),
     );
   }
@@ -229,15 +229,13 @@ class HabitTrackerButton extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HabitTrackerScreen()),
           );
         },
-        child: Text('Habit Tracker'),
+        child: Text('Habit Tracker - D'),
       ),
     );
   }
@@ -255,12 +253,10 @@ class AcademicsButton extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HabitTrackerScreen()),
           );
         },
         child: Text('Academics'),
@@ -305,7 +301,6 @@ class GoalsButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
-      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
@@ -315,7 +310,7 @@ class GoalsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => GoalsScreen()),
           );
         },
-        child: Text('Goals'),
+        child: Text('Goals - D'),
       ),
     );
   }
@@ -356,18 +351,16 @@ class SportsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 150,
-      color: Color.fromARGB(255, 158, 85, 85),
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
-          // Navigate to the SportsScreen when the button is pressed
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => SportsScreen()),
           );
         },
-        child: Text('Sports'),
+        child: Text('Sports - D'),
       ),
     );
   }
@@ -384,7 +377,6 @@ class EventsButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
-      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
@@ -393,7 +385,7 @@ class EventsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => EventsScreen()),
           );
         },
-        child: Text('Events'),
+        child: Text('Events - D'),
       ),
     );
   }
@@ -418,7 +410,7 @@ class JobButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => JobsScreen()),
           );
         },
-        child: Text('Job'),
+        child: Text('Job - D'),
       ),
     );
   }
@@ -434,7 +426,6 @@ class VacationsButton extends StatelessWidget {
     return Container(
       width: 150,
       height: 100,
-      color: Color.fromARGB(255, 158, 85, 85),
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
@@ -443,7 +434,7 @@ class VacationsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => VacationsScreen()),
           );
         },
-        child: Text('Vacations'),
+        child: Text('Vacations - D'),
       ),
     );
   }

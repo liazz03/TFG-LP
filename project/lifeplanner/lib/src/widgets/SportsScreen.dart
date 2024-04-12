@@ -337,7 +337,6 @@ class _SportsScreenState extends State<SportsScreen> {
         );
       },
     ).then((_) {
-      // Reset form and local state after the modal is dismissed
       _formKey.currentState?.reset();
       _name = '';
       _description = '';
@@ -417,6 +416,5 @@ class _SportsScreenState extends State<SportsScreen> {
       ),
     );
   }
-
 
 }

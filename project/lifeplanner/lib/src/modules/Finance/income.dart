@@ -4,14 +4,14 @@ class Income {
   double amount;
   String concept;
   bool budget_or_not;
-  String budgetCategory;
+  String? budgetCategory;
 
-  Income({this.id, required this.date, required this.amount, required this.concept, required this.budget_or_not, required this.budgetCategory});
+  Income({this.id, required this.date, required this.amount, required this.concept, required this.budget_or_not, this.budgetCategory});
 
 
   Map<String, dynamic> toMap() {
     var map = {
-      'id': id, // id is nullable. It will be ignored if null, thanks to the behavior of SQLite
+      'id': id, 
       'date': date.toIso8601String(), // Convert DateTime to ISO8601 String
       'amount': amount,
       'concept': concept,

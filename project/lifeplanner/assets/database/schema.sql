@@ -159,8 +159,9 @@ CREATE TABLE saving_contributions (
 ----JOB----------------
 CREATE TABLE jobs (
   id INTEGER PRIMARY KEY,
-  schedule TEXT, -- Storing the entire timetable as a JSON-encoded string
+  schedule TEXT, -- Storing as a JSON-encoded string
   type TEXT,
+  name TEXT,
   total_hours INTEGER,
   income_id INTEGER,
   FOREIGN KEY (income_id) REFERENCES incomes(id)
@@ -182,7 +183,7 @@ CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
   name TEXT,
   description TEXT,
-  target_date TEXT, -- Storing target date as text
+  target_date TEXT,
   type TEXT,
   actual_date_achievement TEXT,
   achieved INTEGER
@@ -190,24 +191,9 @@ CREATE TABLE goals (
 
 CREATE TABLE habit_trackers (
   id INTEGER PRIMARY KEY,
-  month TEXT
-);
-
-CREATE TABLE habits (
-  id INTEGER PRIMARY KEY,
-  habit_tracker_id INTEGER,
-  name TEXT,
-  description TEXT,
-  related_activity_id INTEGER,
-  FOREIGN KEY (habit_tracker_id) REFERENCES habit_trackers(id),
-  FOREIGN KEY (related_activity_id) REFERENCES activities(id)
-);
-
-CREATE TABLE completed_dates (
-  id INTEGER PRIMARY KEY,
-  habit_id INTEGER,
-  date TEXT,
-  FOREIGN KEY (habit_id) REFERENCES habits(id)
+  month TEXT,
+  year INTEGER,
+  habits TEXT  -- Storing habits as JSON encoded string
 );
 
 CREATE TABLE projects (

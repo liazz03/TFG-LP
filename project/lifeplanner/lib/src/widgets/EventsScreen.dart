@@ -151,7 +151,7 @@ class _EventsScreenState extends State<EventsScreen> {
             TextButton(
               child: Text('Delete'),
               onPressed: () async {
-                Navigator.of(context).pop(); // Dismiss the dialog
+                Navigator.of(context).pop(); 
                 await _eventsDao.deleteEvent(id);
                 _loadEvents(); // Refresh the list of events after deletion
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Event deleted successfully.")));
@@ -169,7 +169,7 @@ class _EventsScreenState extends State<EventsScreen> {
     String categoryName = '';
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap button to close the dialog
+      barrierDismissible: false, 
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Add Category'),
@@ -191,7 +191,6 @@ class _EventsScreenState extends State<EventsScreen> {
               onPressed: () async {
                 if (categoryName.isNotEmpty) {
                   await _eventsDao.addCategory(categoryName);
-                  // Refresh your category list here
                   Navigator.of(context).pop();
                 }
               },
@@ -261,41 +260,46 @@ class _EventsScreenState extends State<EventsScreen> {
                     trailing: Icon(Icons.access_time),
                     onTap: _endDate != null ? () => _pickEndTime(context) : null, // Enabled only after end date is chosen
                   ),
-                  DropdownButtonFormField<int>(
-                    hint: Text("Select Category"),
-                    value: _selectedCategoryId,
-                    onChanged: (int? newValue) {
-                      setState(() {
-                        _selectedCategoryId = newValue!;
-                      });
-                    },
-                    items: categories.map<DropdownMenuItem<int>>((category) {
-                      return DropdownMenuItem<int>(
-                        value: category.id,
-                        child: Text(category.name),
-                      );
-                    }).toList(),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a category';
-                      }
-                      return null;
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () async {
-                      Navigator.of(context).pop(); // Close the current bottom sheet first
-                      await _showAddCategoryDialog(); // Wait for the category to be potentially added
-                      _showAddEventSheet(); // Reopen the Add Event sheet, which will fetch updated categories
-                    },
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          hint: Text("Select Category"),
+                          value: _selectedCategoryId,
+                          onChanged: (int? newValue) {
+                            setState(() {
+                              _selectedCategoryId = newValue!;
+                            });
+                          },
+                          items: categories.map<DropdownMenuItem<int>>((category) {
+                            return DropdownMenuItem<int>(
+                              value: category.id,
+                              child: Text(category.name),
+                            );
+                          }).toList(),
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select a category';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () async {
+                          Navigator.of(context).pop(); 
+                          await _showAddCategoryDialog(); 
+                          _showAddEventSheet(); 
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-                        // Here, you would call a method to insert the new event into the database
                         _addEvent();
                       }
                     },

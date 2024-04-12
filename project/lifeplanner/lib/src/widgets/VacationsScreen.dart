@@ -235,7 +235,7 @@ class _VacationsScreenState extends State<VacationsScreen> {
                     trailing: Icon(Icons.calendar_today),
                     onTap: () => _pickStartDate(context),
                   ),
-                  if (_type != VacationType.FREE_DAY) // Show this only if VacationType is not FREE_DAY
+                  if (_type != VacationType.FREE_DAY)
                     ListTile(
                       title: Text('Select End Date'),
                       subtitle: Text(_endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'No date chosen'),
@@ -248,7 +248,7 @@ class _VacationsScreenState extends State<VacationsScreen> {
                       setState(() {
                         _type = newValue!;
                         if (_type == VacationType.FREE_DAY) {
-                          _endDate = _startDate; // Set end date same as start date for FREE_DAY
+                          _endDate = _startDate;
                         }
                       });
                     },

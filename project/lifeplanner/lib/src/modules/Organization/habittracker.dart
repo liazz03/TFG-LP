@@ -1,51 +1,71 @@
-import 'package:lifeplanner/src/modules/Activity/activity.dart';
-import 'package:lifeplanner/src/modules/Organization/project.dart';
+import 'dart:convert';
+
 enum Month {
-  January,
-  February,
-  March,
-  April,
-  May,
-  June,
-  July,
-  August,
-  September,
-  October,
-  November,
-  December,
+  January, February, March, April, May, June,
+  July, August, September, October, November, December,
 }
 
 class Habit {
   String name;
-  String description;
-  List<DateTime> completedDates;
-  Activity? related_activity;
-  Project? related_project;
-
+  List<int> completedDates; // List of days completed
 
   Habit({
     required this.name,
-    required this.description,
-    this.completedDates = const [],
-    this.related_activity,
-    this.related_project
+    required this.completedDates,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'completed_dates': jsonEncode(completedDates), // Encode the list of integers
+    };
+  }
+
+  static Habit fromMap(Map<String, dynamic> map) {
+    return Habit(
+      name: map['name'],
+      completedDates: List<int>.from(jsonDecode(map['completed_dates'])), // Decode to a list of integers
+    );
+  }
 }
 
 class HabitTracker {
-  List<Habit> habits;
+  int? id;
   Month month;
-  HabitTracker({this.habits = const [], required this.month});
+  List<Habit> habits;
+  int year;
 
-  void addHabit(Habit habit) {
-    habits.add(habit);
+  HabitTracker({
+    this.id,
+    required this.habits,
+    required this.month,
+    required this.year,
+  });
+
+  void deleteHabit(Habit habitt) {
+    habits.removeWhere((habit) => habit.name == habitt.name);
   }
 
-  void removeHabit(Habit habit) {
-    habits.remove(habit);
+  Habit? getHabit(String habitName) {
+    try {
+      return habits.firstWhere((habit) => habit.name == habitName);
+    } catch (e) {
+      return null; 
+    }
   }
 
-  void completeHabit(Habit habit, DateTime date) {
-    habit.completedDates.add(date);
-  }
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'month': month.toString().split('.').last,
+    'year': year,
+    'habits': jsonEncode(habits.map((habit) => habit.toMap()).toList()),
+  };
+
+  static HabitTracker fromMap(Map<String, dynamic> map) => HabitTracker(
+    id: map['id'],
+    month: Month.values.firstWhere((m) => m.toString() == 'Month.' + map['month']),
+    year: map['year'],
+    habits: (jsonDecode(map['habits']) as List).map((habitMap) => Habit.fromMap(habitMap)).toList(),
+  );
+  
 }
