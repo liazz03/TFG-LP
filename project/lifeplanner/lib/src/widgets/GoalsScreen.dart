@@ -10,14 +10,14 @@ class GoalsScreen extends StatefulWidget {
 
 class _GoalsScreenState extends State<GoalsScreen> {
   final GoalDao _goalDao = GoalDao();
-  final _formKey = GlobalKey<FormState>(); // Form key
+  final _formKey = GlobalKey<FormState>(); // Form
 
   // Form data
   String _name = '';
   String? _description;
-  DateTime? _targetDate; // Variable to hold the target date
+  DateTime? _targetDate; 
 
-  // Current goal being edited
+  // goal being edited
   Goal? _currentGoal;
 
 
@@ -57,7 +57,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   SizedBox(height: 20),
                   ListTile(
                     title: Text('Select Target Date'),
-                    subtitle: Text(_targetDate != null ? _targetDate.toString() : 'No date chosen'),
+                    subtitle: Text(_targetDate != null ? DateFormat('yyyy-MM-dd').format(_targetDate!) : 'No date chosen'),
                     trailing: Icon(Icons.calendar_today),
                     onTap: () => _pickDate(context),
                   ),
@@ -81,11 +81,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
   }
 
   void _showEditGoalSheet(Goal goal) {
-  // Pre-fill the form with the current goal's data
   _name = goal.name;
   _description = goal.description;
   _targetDate = goal.targetDate;
-  _currentGoal = goal; // Keep track of the current goal being edited
+  _currentGoal = goal; 
 
   showModalBottomSheet(
     context: context,
@@ -138,9 +137,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          // Update the goal in the database
+                          // Update the goal in db
                           Goal updatedGoal = Goal(
-                            id: _currentGoal!.id, // Keep the same ID
+                            id: _currentGoal!.id, // same id
                             name: _name,
                             description: _description,
                             targetDate: _targetDate,
@@ -148,8 +147,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                             achieved: _currentGoal!.achieved,
                           );
                           await _goalDao.updateGoal(updatedGoal);
-                          Navigator.pop(context); // Close the modal bottom sheet
-                          setState(() {}); // Refresh the list of goals
+                          Navigator.pop(context); 
+                          setState(() {}); 
                         }
                       },
                       child: Text('Update Goal'),
@@ -193,12 +192,16 @@ class _GoalsScreenState extends State<GoalsScreen> {
       achieved: false,
     );
     await _goalDao.addGoal(newGoal);
-    Navigator.pop(context); // Close the modal bottom sheet
-    setState(() {}); // Refresh the list of goals
+    Navigator.pop(context);
+    setState(() {}); // Refresh  list of goals
   }
 
   @override
   Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
+    String currentMonth = DateFormat('MMMM').format(now);
+    String currentYear = now.year.toString();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Goals'),
@@ -217,39 +220,91 @@ class _GoalsScreenState extends State<GoalsScreen> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('You have no goals registered!'));
+          } else if (!snapshot.hasData) {
+            return ListView(
+              children: [
+                _emptySection('This Week\'s Goals'),
+                _emptySection('$currentMonth Goals'),
+                _emptySection('$currentYear Goals'),
+                _emptySection('Other Goals'),
+                _emptySection('Achieved Goals'),
+              ],
+            );
           } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final goal = snapshot.data![index];
-                String formattedDate = goal.targetDate != null ? 
-                  DateFormat('yyyy-MM-dd').format(goal.targetDate!) : 
-                  'No target date';
-                return ListTile(
-                  title: Text(goal.name),
-                  subtitle: Text('${goal.description ?? 'No description'}\nTarget Date: $formattedDate'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: const Color.fromARGB(255, 0, 0, 0)),
-                        onPressed: () => _showEditGoalSheet(goal),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Color.fromARGB(255, 163, 21, 10)),
-                        onPressed: () => _confirmDeleteGoal(goal.id),
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
-                );
-              },
+            List<Goal> allGoals = snapshot.data!;
+            List<Goal> thisWeeksGoals = allGoals.where((goal) => goal.type == GoalType.weekly).toList();
+            List<Goal> monthGoals = allGoals.where((goal) => goal.type == GoalType.monthly).toList();
+            List<Goal> yearGoals = allGoals.where((goal) => goal.type == GoalType.yearly).toList();
+            List<Goal> otherGoals = allGoals.where((goal) => goal.type == GoalType.noDate || goal.targetDate != null && goal.targetDate!.isBefore(now)).toList();
+            List<Goal> achievedGoals = allGoals.where((goal) => goal.achieved).toList();
+
+            return ListView(
+              children: [
+                _goalSection('This Week\'s Goals', thisWeeksGoals),
+                _goalSection('$currentMonth Goals', monthGoals),
+                _goalSection('$currentYear Goals', yearGoals),
+                _goalSection('Other Goals', otherGoals),
+                _goalSection('Achieved Goals', achievedGoals),
+              ],
             );
           }
         },
       ),
+    );
+  }
+
+  Widget _goalSection(String title, List<Goal> goals) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            border:  Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
+          ),
+          child: Text(title, style: Theme.of(context).textTheme.headline6),
+        ),
+        if (goals.isEmpty)
+          ListTile(title: Text('No $title')),
+        ...goals.map((goal) => _goalInfoDisp(goal)).toList(),
+      ],
+    );
+  }
+
+  Widget _emptySection(String title) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
+      ),
+      child: Text(title, style: Theme.of(context).textTheme.headline6),
+    );
+  }
+
+  Widget _goalInfoDisp(Goal goal) {
+    String formattedDate = goal.targetDate != null ? DateFormat('yyyy-MM-dd').format(goal.targetDate!) : 'No target date';
+    return ListTile(
+      title: Text(goal.name),
+      subtitle: Text('${goal.description ?? 'No description'}\nTarget Date: $formattedDate'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.black),
+            onPressed: () => _showEditGoalSheet(goal),
+          ),
+          IconButton(
+            icon: Icon(Icons.check, color: Colors.green[800]),
+            onPressed: () => print("TODO"),
+          ),
+          IconButton(
+            icon: Icon(Icons.close, color: Colors.red[800]),
+            onPressed: () => _confirmDeleteGoal(goal.id),
+          ),
+        ],
+      ),
+      isThreeLine: true,
     );
   }
 
@@ -270,9 +325,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
             TextButton(
               child: Text('Delete'),
               onPressed: () async {
-                Navigator.of(context).pop(); // Dismiss the dialog
+                Navigator.of(context).pop(); 
                 await _goalDao.deleteGoal(id);
-                setState(() {}); // Refresh the list of goals after deletion
+                setState(() {}); 
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Goal deleted successfully.")));
               },
             ),

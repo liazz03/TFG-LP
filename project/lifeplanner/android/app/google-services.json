@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324470936864",
+    "project_id": "tfg---lp",
+    "storage_bucket": "tfg---lp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324470936864:android:3ef5b7ea9f8120d93df345",
+        "android_client_info": {
+          "package_name": "lifeplanner.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfKg8rW_DSijzbfi-MIWqkqyT6EBM11MU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

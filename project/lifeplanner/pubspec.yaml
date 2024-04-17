@@ -16,8 +16,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   schedules: ^0.0.4
+  timelines: ^0.1.0
   sqflite: ^2.0.2
   path: ^1.9.0
+
   
 
 

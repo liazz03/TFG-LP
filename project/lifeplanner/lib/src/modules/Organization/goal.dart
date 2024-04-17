@@ -58,7 +58,7 @@ class Goal {
       'achieved': achieved ? 1 : 0,
     };
 
-    if (id != null) {  // if goal is new it wont have an id yet
+    if (id != null) {  
       map['id'] = id;  // if it is an update it will have an id
     }
 

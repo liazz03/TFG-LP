@@ -31,43 +31,106 @@ class _TasksScreenState extends State<TasksScreen> {
         ],
       ),
       body: FutureBuilder<List<Tasks>>(
-        future: _tasksDao.getAllTasks(), // Fetch tasks from the database
+        future: _tasksDao.getAllTasks(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            List<Tasks> tasks = snapshot.data!;
-            return ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return ListTile(
+          } else if (snapshot.hasData) {
+            List<Tasks> allTasks = snapshot.data!;
+            List<Tasks> pendingTasks = allTasks.where((task) => task.state == TASKS_STATE.PENDING).toList();
+            List<Tasks> completedTasks = allTasks.where((task) => task.state == TASKS_STATE.COMPLETED).toList();
+            List<Tasks> lateTasks = allTasks.where((task) => task.state == TASKS_STATE.LATE).toList();
+
+            return ListView(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
+                  ),
+                  child: Text('Pending Tasks', style: Theme.of(context).textTheme.headline6),
+                ),
+                if (pendingTasks.isEmpty)
+                  ListTile(title: Text('No Pending Tasks.')),
+                ...pendingTasks.map((task) => ListTile(
                   title: Text(task.description),
                   subtitle: Text(task.state.toString().split('.').last),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: const Color.fromARGB(255, 0, 0, 0)),
-                      onPressed: () => _showEditTaskSheet(task),
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.black),
+                        onPressed: () => _showEditTaskSheet(task),
                       ),
                       IconButton(
-                    icon: Icon(Icons.check,color: Color.fromARGB(255, 0, 46, 6)),
-                    onPressed: () => _MarkAsCompleteTask(task.id),
+                        icon: Icon(Icons.check, color: Colors.green[800]),
+                        onPressed: () => _MarkAsCompleteTask(task.id),
                       ),
-                    IconButton(
-                    icon: Icon(Icons.close,color: Color.fromARGB(255, 163, 21, 10)),
-                    onPressed: () => _confirmDeleteTask(task.id),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red[800]),
+                        onPressed: () => _confirmDeleteTask(task.id),
                       ),
-                    
                     ],
                   ),
                   isThreeLine: true,
-                  
-                );
-              },
+                )),
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
+                  ),
+                  child: Text('Completed Tasks', style: Theme.of(context).textTheme.headline6),
+                ),
+                if (completedTasks.isEmpty)
+                  ListTile(title: Text('No Completed Tasks.')),
+                ...completedTasks.map((task) => ListTile(
+                  title: Text(task.description),
+                  subtitle: Text(task.state.toString().split('.').last),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red[800]),
+                        onPressed: () => _confirmDeleteTask(task.id),
+                      ),
+                    ],
+                  ),
+                  isThreeLine: true,
+                )),
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
+                  ),
+                  child: Text('Late Tasks', style: Theme.of(context).textTheme.headline6),
+                ),
+                if (lateTasks.isEmpty)
+                  ListTile(title: Text('No Late Tasks.')),
+                ...lateTasks.map((task) => ListTile(
+                  title: Text(task.description),
+                  subtitle: Text(task.state.toString().split('.').last),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.black),
+                        onPressed: () => _showEditTaskSheet(task),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.check, color: Colors.green[800]),
+                        onPressed: () => _MarkAsCompleteTask(task.id),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red[800]),
+                        onPressed: () => _confirmDeleteTask(task.id),
+                      ),
+                    ],
+                  ),
+                  isThreeLine: true,
+                )),
+              ],
             );
           } else {
             return Center(child: Text("You have no To-Dos!"));
@@ -77,16 +140,18 @@ class _TasksScreenState extends State<TasksScreen> {
     );
   }
 
+
+
   void _MarkAsCompleteTask(int? id) async {
     if (id == null) return;
 
-    // Retrieve the task from the database using the id
+    // Retrieve task from db
     Tasks? task = await _tasksDao.getTaskById(id);
     if (task != null) {
-      // Update the task's state to COMPLETED
+      // mark task to COMPLETED
       task.state = TASKS_STATE.COMPLETED;
 
-      // Call the database to update the task
+
       int result = await _tasksDao.updateTask(task);
       if (result != 0) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -98,13 +163,12 @@ class _TasksScreenState extends State<TasksScreen> {
         );
       }
 
-      // Update the UI
       setState(() {});
     }
   }
 
   void _showEditTaskSheet(Tasks task) {
-    // Create a copy of the task to modify
+    // copy of the task to edit
     Tasks editableTask = Tasks(
       id: task.id,
       state: task.state,
@@ -119,8 +183,6 @@ class _TasksScreenState extends State<TasksScreen> {
         builder: (BuildContext bc) {
           return StatefulBuilder(
             builder: (BuildContext context, StateSetter setModalState) {
-              // The form and its fields, similar to AddTaskForm but pre-filled with task data
-              // Include logic for handling updates on fields and a submit button to update the task
               return SingleChildScrollView(
                 padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Container(
@@ -134,7 +196,6 @@ class _TasksScreenState extends State<TasksScreen> {
           );
         },
       ).then((value) {
-        // Force widget to rebuild, fetching tasks again
         setState(() {});
       });
   }
@@ -156,9 +217,9 @@ class _TasksScreenState extends State<TasksScreen> {
             TextButton(
               child: Text('Delete'),
               onPressed: () async {
-                Navigator.of(context).pop(); // Dismiss the dialog
-                await _tasksDao.deleteTask(id); // Delete the task
-                setState(() {}); // Refresh the list of tasks
+                Navigator.of(context).pop(); 
+                await _tasksDao.deleteTask(id); 
+                setState(() {}); 
               },
             ),
           ],
@@ -177,7 +238,6 @@ class _TasksScreenState extends State<TasksScreen> {
         return AddTaskForm();
       },
     ).then((value) {
-      // Force the widget to rebuild and fetch the tasks again.
       setState(() {});
     });
   }
@@ -219,7 +279,7 @@ class _EditTaskFormState extends State<EditTaskForm> {
     _taskState = widget.editableTask.state;
 
     _dateOfDoing = widget.editableTask.timeslot?.startDate; 
-    // If timeslot has start and end times, initialize them here as well
+
     _startTime_dateofdoing = TimeOfDay.fromDateTime(widget.editableTask.timeslot?.startDate ?? DateTime.now());
     _endTime_dateofdoing = TimeOfDay.fromDateTime(widget.editableTask.timeslot?.endDate ?? DateTime.now());
   }
@@ -276,13 +336,13 @@ Future<void> _pickTimeslotEndTime() async {
 
   void _updateTask() async {
       if (_formKey.currentState!.validate()) {
-        // Update task description
-        widget.editableTask.description = _descriptionController.text;
-        widget.editableTask.deadline = _deadline; // Set the new deadline
 
-        // Check if we have both date and time for the timeslot
+        widget.editableTask.description = _descriptionController.text;
+        widget.editableTask.deadline = _deadline; 
+
+
         if (_dateOfDoing != null && _startTime_dateofdoing != null && _endTime_dateofdoing != null) {
-          // Combine date and time for startDateTime
+          // Combine
           DateTime startDateTime = DateTime(
             _dateOfDoing!.year,
             _dateOfDoing!.month,
@@ -291,7 +351,7 @@ Future<void> _pickTimeslotEndTime() async {
             _startTime_dateofdoing!.minute,
           );
 
-          // Combine date and time for endDateTime
+          // Combine
           DateTime endDateTime = DateTime(
             _dateOfDoing!.year,
             _dateOfDoing!.month,
@@ -303,20 +363,20 @@ Future<void> _pickTimeslotEndTime() async {
           widget.editableTask.timeslot = Daily(
             startDate: startDateTime,
             endDate: endDateTime,
-            frequency: 0, // Assuming frequency is 0 for a single occurrence
+            frequency: 0, 
           );
         }
 
-        // Call the DAO to update the task in the database
+        // update the task in database
         int result = await widget.tasksDao.updateTask(widget.editableTask);
         if (result != 0) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Task updated successfully')));
-          widget.onTaskUpdated(); // Refresh the list of tasks
+          widget.onTaskUpdated(); // Refresh list of tasks
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update the task')));
         }
 
-        Navigator.pop(context); // Close the modal bottom sheet
+        Navigator.pop(context); 
       }
   }
 
@@ -332,7 +392,7 @@ Future<void> _pickTimeslotEndTime() async {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            if (!isEditable) // If the task is not editable, show a red text message
+            if (!isEditable) // If the task is not editable show red message
             Text(
               'This task is not editable because its completed.',
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
@@ -388,7 +448,6 @@ class _AddTaskFormState extends State<AddTaskForm> {
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
 
-  // Instantiate TasksDao
   final TasksDao _tasksDao = TasksDao();
 
   Future<void> _pickDateDeadLine() async {
@@ -466,18 +525,18 @@ class _AddTaskFormState extends State<AddTaskForm> {
           children: <Widget>[
             TextFormField(
               decoration: InputDecoration(labelText: 'Description'),
-              validator: (value) { // Add a validator to check the input
+              validator: (value) { // validator 
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a description'; // Return an error message if the input is empty
+                    return 'Please enter a description'; 
                   }
-                  return null; // Return null if the input is valid
+                  return null; 
                 },
                 onSaved: (value) {
                   _description = value ?? '';
                 },
             ),
             SizedBox(height: 10),
-            // Section to pick a date for the deadline or timeslot
+            // pick a date for the deadline or timeslot
             ElevatedButton(
               onPressed: _pickDateDeadLine,
               child: Text(_DeadlineDate == null
@@ -485,7 +544,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   : 'Deadline date: ${_DeadlineDate!.toLocal().toString().split(' ')[0]}'),
             ),
             SizedBox(height: 10),
-            // Section to pick a deadline time
+            // pick a deadline time
             ElevatedButton(
               onPressed: _DeadlineDate == null ? null : _pickDeadlineTime,
               child: Text(_deadlineTime == null
@@ -493,7 +552,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   : 'Deadline Time: ${_deadlineTime!.format(context)}'),
             ),
             SizedBox(height: 10),
-            // Section to pick a date for timeslot
+            // pick a date for timeslot
             ElevatedButton(
               onPressed: _pickDateTimeSlot,
               child: Text(_TimeslotDate == null
@@ -501,7 +560,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   : 'Date of doing: ${_TimeslotDate!.toLocal().toString().split(' ')[0]}'),
             ),
             SizedBox(height: 10),
-            // Section to pick a start time for the timeslot
+            // pick a start time for timeslot
             ElevatedButton(
               onPressed: _TimeslotDate == null ? null : _pickStartTime,
               child: Text(_startTime == null
@@ -509,7 +568,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
                   : 'From: ${_startTime!.format(context)}'),
             ),
             SizedBox(height: 10),
-            // Section to pick an end time for the timeslot
+            // pick an end time for timeslot
             ElevatedButton(
               onPressed: _TimeslotDate == null || _startTime == null ? null : _pickEndTime,
               child: Text(_endTime == null
@@ -520,10 +579,10 @@ class _AddTaskFormState extends State<AddTaskForm> {
             ElevatedButton(
               child: Text('Add Task'),
               onPressed: () {
-                  if (_formKey.currentState!.validate()) { // Check if the form is valid
+                  if (_formKey.currentState!.validate()) { 
                     _formKey.currentState!.save();
                     _addTask();
-                    Navigator.pop(context); // Close the bottom sheet
+                    Navigator.pop(context); 
                   }
               },
             ),
@@ -563,8 +622,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
         _endTime!.hour,
         _endTime!.minute,
       );
-      // Assuming Schedule can be constructed like this, adjust according to your Schedule class
-      timeslot = Daily(startDate: startDateTime, endDate: endDateTime, frequency: 0); // Update this line as per your Schedule class implementation
+      timeslot = Daily(startDate: startDateTime, endDate: endDateTime, frequency: 0); 
     }
 
     final Tasks newTask = Tasks(

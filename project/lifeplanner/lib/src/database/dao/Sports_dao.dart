@@ -39,15 +39,14 @@ class SportsDao {
 
     Future<void> resetCurrentDedicationAndUpdateTotal() async {
     final db = await dbProvider;
-    // Assuming 'sports' table has 'actual_dedication_time_x_week' and 'total_dedicated_time' columns
     await db.transaction((txn) async {
-      // First, update 'total_dedicated_time' for all records
+      // update total_dedicated_time for all records
       await txn.rawUpdate('''
         UPDATE sports SET 
           total_dedicated_time = total_dedicated_time + actual_dedication_time_x_week
       ''');
 
-      // Then, reset 'actual_dedication_time_x_week' to 0
+      // reset actual_dedication_time_x_week to 0
       await txn.rawUpdate('''
         UPDATE sports SET 
           actual_dedication_time_x_week = 0
@@ -57,9 +56,8 @@ class SportsDao {
 
   Future<void> UpdateTotal() async {
     final db = await dbProvider;
-    // Assuming 'sports' table has 'actual_dedication_time_x_week' and 'total_dedicated_time' columns
     await db.transaction((txn) async {
-      // First, update 'total_dedicated_time' for all records
+      // update total_dedicated_time for all records
       await txn.rawUpdate('''
         UPDATE sports SET 
           total_dedicated_time = total_dedicated_time + actual_dedication_time_x_week

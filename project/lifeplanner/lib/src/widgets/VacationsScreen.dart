@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lifeplanner/src/database/dao/Vacations_dao.dart';
+import 'package:timelines/timelines.dart';
 import '../modules/Job/vacation.dart';
 
 class VacationsScreen extends StatefulWidget {
@@ -16,73 +17,109 @@ class _VacationsScreenState extends State<VacationsScreen> {
   String _title = '';
   VacationType _type = VacationType.FREE_DAY;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Vacations'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            iconSize: 30,
-            onPressed: _showAddVacationSheet,
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<Vacation>>(
-        future: _vacationsDao.getAllVacations(), // Fetch vacations from the database
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            List<Vacation> vacations = snapshot.data!;
-            return ListView.builder(
-              itemCount: vacations.length,
-              itemBuilder: (context, index) {
-                final vacation = vacations[index];
-                // Formatting dates
-                String formattedStartDate = DateFormat('yyyy-MM-dd').format(vacation.start_date);
-                String formattedEndDate = vacation.end_date != null ? DateFormat('yyyy-MM-dd').format(vacation.end_date) : '';
-                // Adjusting display based on type
-                String dateDisplay = vacation.type == VacationType.FREE_DAY ? formattedStartDate : "$formattedStartDate - $formattedEndDate";
-                return ListTile(
-                  title: Text(vacation.title),
-                  subtitle: Text("$dateDisplay | ${vacation.days} days\n${vacation.type.toString().split('.').last}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          _showEditVacationSheet(vacation);
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Color.fromARGB(255, 163, 21, 10)),
-                        onPressed: () => _confirmDeleteVacation(vacation.id),
-                      ),
-                    ],
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Vacations'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.add),
+              iconSize: 30,
+              onPressed: _showAddVacationSheet,
+            ),
+          ],
+        ),
+        body: FutureBuilder<List<Vacation>>(
+          future: _vacationsDao.getAllVacations(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+              List<Vacation> vacations = snapshot.data!;
+              vacations.sort((a, b) => a.start_date.compareTo(b.start_date));
+
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FixedTimeline.tileBuilder(
+                  theme: TimelineThemeData(
+                    nodePosition: 0,
+                    color: Colors.blueAccent,
+                    indicatorTheme: IndicatorThemeData(
+                      position: 0,
+                      size: 20.0,
+                    ),
+                    connectorTheme: ConnectorThemeData(
+                      thickness: 2.5,
+                    ),
                   ),
-                  isThreeLine: true,
-                );
-              },
-            );
-          } else {
-            return Center(child: Text("No vacations found!"));
-          }
-        },
-      ),
-    );
-  }
+                  builder: TimelineTileBuilder.connected(
+                    connectionDirection: ConnectionDirection.before,
+                    itemCount: vacations.length,
+                    contentsBuilder: (_, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: VacationDisp(vacations[index]),
+                      );
+                    },
+                    indicatorBuilder: (_, index) {
+                      return DotIndicator(
+                        color:  Color.fromARGB(255, 64, 145, 182),
+                        child: Icon(
+                          vacations[index].type == VacationType.FREE_DAY ? Icons.flag : Icons.flight_takeoff,
+                          color: Colors.white,
+                          size: 12.0,
+                        ),
+                      );
+                    },
+                    connectorBuilder: (_, index, ___) {
+                      return SolidLineConnector(
+                        color: Color.fromARGB(255, 64, 145, 182),
+                      );
+                    },
+                  ),
+                ),
+              );
+            } else {
+              return Center(child: Text("No vacations found!"));
+            }
+          },
+        ),
+      );
+    }
+
+  Widget VacationDisp(Vacation vacation) {
+      return Card(
+        child: ListTile(
+          title: Text(vacation.title),
+          subtitle: Text(
+            '${DateFormat('yyyy-MM-dd').format(vacation.start_date)} - ${DateFormat('yyyy-MM-dd').format(vacation.end_date)} | ${vacation.days} days',
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () => _showEditVacationSheet(vacation),
+              ),
+              IconButton(
+                icon: Icon(Icons.close, color: const Color.fromARGB(255, 148, 21, 12)),
+                onPressed: () => _confirmDeleteVacation(vacation.id),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
 
   void _showEditVacationSheet(Vacation vacation) {
-    // Initialize form with vacation data
     _title = vacation.title;
     _startDate = vacation.start_date;
     _endDate = vacation.end_date;
-    _type = vacation.type; // Note: Type is not editable as per requirement
+    _type = vacation.type; 
 
     showModalBottomSheet(
       context: context,
@@ -113,22 +150,22 @@ class _VacationsScreenState extends State<VacationsScreen> {
                     leading: Icon(Icons.date_range),
                     title: Text('Start Date'),
                     subtitle: Text(_startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : 'No date chosen'),
-                    onTap: () => _pickStartDate(context, isEditing: true), // Modified to include isEditing
+                    onTap: () => _pickStartDate(context, isEditing: true), 
                   ),
-                  // Conditionally add the end date picker
+                  //  add the end date picker
                   if (_type != VacationType.FREE_DAY)
                     ListTile(
                       leading: Icon(Icons.date_range),
                       title: Text('End Date'),
                       subtitle: Text(_endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : 'No date chosen'),
-                      onTap: () => _pickEndDate(context, isEditing: true), // Modified to include isEditing
+                      onTap: () => _pickEndDate(context, isEditing: true), 
                     ),
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-                        _updateVacation(vacation); // Modified to pass the entire vacation object
+                        _updateVacation(vacation);
                       }
                     },
                     child: Text('Update Vacation'),
@@ -144,16 +181,15 @@ class _VacationsScreenState extends State<VacationsScreen> {
 
 
   void _updateVacation(Vacation vacation) async {
-    // Validate the form fields
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       
-      // Calculate the days difference if the end date is provided
+      // Calculate the days difference 
       if (_endDate != null && _startDate != null) {
         vacation.days = _endDate!.difference(_startDate!).inDays + 1;
       }
       
-      // Update the vacation object with the new values from the form
+      // Update the vacation 
       vacation.title = _title;
       vacation.start_date = _startDate!;
       if (vacation.type != VacationType.FREE_DAY) {
@@ -162,10 +198,9 @@ class _VacationsScreenState extends State<VacationsScreen> {
         vacation.end_date = _startDate!; 
       }
       
-      // Call the DAO to update the vacation in the database
       await _vacationsDao.updateVacation(vacation).then((_) {
-        Navigator.of(context).pop(); // Close the modal sheet
-        setState(() {}); // Refresh the list to show updated details
+        Navigator.of(context).pop(); 
+        setState(() {}); 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vacation updated successfully")));
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error updating vacation: $error")));
@@ -191,8 +226,8 @@ class _VacationsScreenState extends State<VacationsScreen> {
               child: Text('Delete'),
               onPressed: () async {
                 await _vacationsDao.deleteVacation(id);
-                Navigator.of(context).pop(); // Close the dialog
-                setState(() {}); // Trigger a state change to refresh the list
+                Navigator.of(context).pop(); 
+                setState(() {}); 
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vacation deleted successfully.")));
               },
             ),
@@ -288,7 +323,7 @@ class _VacationsScreenState extends State<VacationsScreen> {
     if (pickedDate != null) {
       setState(() {
         _startDate = pickedDate;
-        // For FREE_DAY types, automatically adjust the end date to match the start date
+        // For FREE_DAY types end date to match the start date
         if (_type == VacationType.FREE_DAY) {
           _endDate = _startDate;
         }
@@ -323,9 +358,8 @@ class _VacationsScreenState extends State<VacationsScreen> {
     }
 
     // Calculate days difference
-    int days = _endDate!.difference(_startDate!).inDays + 1; // Add one to include the start date
+    int days = _endDate!.difference(_startDate!).inDays + 1; // include the start date
 
-    // Create object
     Vacation newVacation = Vacation(
       start_date: _startDate!,
       end_date: _type == VacationType.FREE_DAY ? _startDate! : _endDate!,

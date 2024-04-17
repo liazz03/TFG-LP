@@ -35,7 +35,7 @@ class _EventsScreenState extends State<EventsScreen> {
     });
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -55,82 +55,88 @@ class _EventsScreenState extends State<EventsScreen> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error loading events: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No events found'));
-          } else {
-            List<Event> scheduledEvents = snapshot.data!
-                .where((event) => event.state == EVENT_STATE.Scheduled)
-                .toList()
-              ..sort((a, b) => a.timeslot.startDate.compareTo(b.timeslot.startDate));
-            List<Event> finishedEvents = snapshot.data!
-                .where((event) => event.state == EVENT_STATE.Finished)
-                .toList()
-              ..sort((a, b) => a.timeslot.startDate.compareTo(b.timeslot.startDate));
-
-            return ListView(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
-                  ),
-                  child: Text('Upcoming Events', style: Theme.of(context).textTheme.headline6),
-                ),
-                ...scheduledEvents.map((event) => ListTile(
-                  title: Text(event.name),
-                  subtitle: Text(
-                    '${event.description}\n'
-                    'Starts: ${DateFormat('MMM d, HH:mm').format(event.timeslot.startDate)}'
-                    '${event.timeslot.endDate != null ? '\nEnds: ${DateFormat('MMM d, HH:mm').format(event.timeslot.endDate!)}' : ''}'
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          // Implement edit event functionality
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: const Color.fromARGB(255, 151, 18, 9)),
-                        onPressed: () => _confirmDeleteEvent(event.id),
-                      ),
-                    ],
-                  ),
-                )),
-                SizedBox(height: 8.0),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
-                  ),
-                  child: Text('Finished Events', style: Theme.of(context).textTheme.headline6),
-                ),
-                ...finishedEvents.map((event) => ListTile(
-                  title: Text(event.name),
-                  subtitle: Text(
-                    '${event.description}\n'
-                    'Starts: ${DateFormat('MMM d, HH:mm').format(event.timeslot.startDate)}'
-                    '${event.timeslot.endDate != null ? '\nEnds: ${DateFormat('MMM d, HH:mm').format(event.timeslot.endDate!)}' : ''}'
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.close, color: const Color.fromARGB(255, 131, 20, 12)),
-                        onPressed: () => _confirmDeleteEvent(event.id),
-                      ),
-                    ],
-                  ),
-                )),
-              ],
-            );
           }
+
+          List<Event> allEvents = snapshot.hasData ? snapshot.data! : [];
+          List<Event> scheduledEvents = allEvents
+              .where((event) => event.state == EVENT_STATE.Scheduled)
+              .toList()
+            ..sort((a, b) => a.timeslot.startDate.compareTo(b.timeslot.startDate));
+          List<Event> finishedEvents = allEvents
+              .where((event) => event.state == EVENT_STATE.Finished)
+              .toList()
+            ..sort((a, b) => a.timeslot.startDate.compareTo(b.timeslot.startDate));
+
+          return ListView(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
+                ),
+                child: Text('Upcoming Events', style: Theme.of(context).textTheme.headline6),
+              ),
+              // if there are scheduled events to display
+              if (scheduledEvents.isEmpty)
+                ListTile(title: Text('No upcoming events.')),
+              ...scheduledEvents.map((event) => ListTile(
+                title: Text(event.name),
+                subtitle: Text(
+                  '${event.description}\n'
+                  'Starts: ${DateFormat('MMM d, HH:mm').format(event.timeslot.startDate)}'
+                  '${event.timeslot.endDate != null ? '\nEnds: ${DateFormat('MMM d, HH:mm').format(event.timeslot.endDate!)}' : ''}'
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        // edit event functionality
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: const Color.fromARGB(255, 151, 18, 9)),
+                      onPressed: () => _confirmDeleteEvent(event.id),
+                    ),
+                  ],
+                ),
+              )),
+              SizedBox(height: 8.0),
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
+                ),
+                child: Text('Finished Events', style: Theme.of(context).textTheme.headline6),
+              ),
+              // if there are finished events to display
+              if (finishedEvents.isEmpty)
+                ListTile(title: Text('No finished events.')),
+              ...finishedEvents.map((event) => ListTile(
+                title: Text(event.name),
+                subtitle: Text(
+                  '${event.description}\n'
+                  'Starts: ${DateFormat('MMM d, HH:mm').format(event.timeslot.startDate)}'
+                  '${event.timeslot.endDate != null ? '\nEnds: ${DateFormat('MMM d, HH:mm').format(event.timeslot.endDate!)}' : ''}'
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.close, color: const Color.fromARGB(255, 131, 20, 12)),
+                      onPressed: () => _confirmDeleteEvent(event.id),
+                    ),
+                  ],
+                ),
+              )),
+            ],
+          );
         },
       ),
     );
   }
+
 
 
 

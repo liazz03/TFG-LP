@@ -14,7 +14,7 @@ class SportsScreen extends StatefulWidget {
 
 class _SportsScreenState extends State<SportsScreen> {
   final SportsDao _sportsDao = SportsDao();
-  final _formKey = GlobalKey<FormState>(); // Form key
+  final _formKey = GlobalKey<FormState>(); 
 
   Future<List<Sport>>? _sportsFuture;
 
@@ -91,7 +91,6 @@ class _SportsScreenState extends State<SportsScreen> {
                     return Column(
                       children: [
                         Text('${DateFormat('EEEE').format(weekly.startDate)} - ${DateFormat('jm').format(weekly.startDate)} to ${DateFormat('jm').format(weekly.endDate!)}'),
-                        // This button could be used to remove a time slot, you'll need to implement the logic for removing
                       ],
                     );
                   }).toList(),
@@ -128,7 +127,7 @@ class _SportsScreenState extends State<SportsScreen> {
 
 
   Future<void> _addTimeSlot() async {
-    // Step 1: Let the user pick a day of the week
+    // day of the week
     final List<String> daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     String? selectedDay = await showDialog<String>(
       context: context,
@@ -145,22 +144,22 @@ class _SportsScreenState extends State<SportsScreen> {
       },
     );
 
-    if (selectedDay == null) return; // User canceled or didn't pick a day
-    int weekday = daysOfWeek.indexOf(selectedDay) + 1; // Convert day to integer (1 = Monday, ..., 7 = Sunday)
+    if (selectedDay == null) return;
+    int weekday = daysOfWeek.indexOf(selectedDay) + 1;
 
-    // Step 2: Pick the start time
+    // start time
     final TimeOfDay? startTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (startTime == null) return; // User canceled
+    if (startTime == null) return;
 
-    // Step 3: Pick the end time
+    // end time
     final TimeOfDay? endTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: (startTime.hour + 1) % 24, minute: startTime.minute),
     );
-    if (endTime == null) return; // User canceled
+    if (endTime == null) return; 
 
     // Convert TimeOfDay to DateTime
     final now = DateTime.now();
@@ -171,8 +170,8 @@ class _SportsScreenState extends State<SportsScreen> {
       _weeklySchedule.add(Weekly(
         startDate: startDate,
         endDate: endDate,
-        weekdays: [weekday], // Adding the selected day as a single-element list
-        frequency: 1, // Assuming frequency is always 1 for simplicity
+        weekdays: [weekday], 
+        frequency: 1, 
       ));
     });
   }
@@ -191,10 +190,10 @@ class _SportsScreenState extends State<SportsScreen> {
       );
 
       await _sportsDao.addSport(newSport);
-      _weeklySchedule.clear(); // clear schedule 
+      _weeklySchedule.clear();
       _loadSports();
-      Navigator.pop(context); // Dismiss the modal bottom sheet
-      setState(() {}); // This triggers the UI to refresh.
+      Navigator.pop(context); 
+      setState(() {}); 
     } catch (e) {
       print('Error adding sport: $e');
     }
@@ -210,16 +209,16 @@ class _SportsScreenState extends State<SportsScreen> {
           actions: <Widget>[
             TextButton(
               child: Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(), // Close the dialog
+              onPressed: () => Navigator.of(context).pop(), 
             ),
             TextButton(
               child: Text('Delete'),
               onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); 
                 if (sportId != null) {
-                  await _sportsDao.deleteSport(sportId); // Delete the sport
-                  _loadSports(); // Refresh the list of sports
-                  setState(() {}); // Trigger a rebuild
+                  await _sportsDao.deleteSport(sportId); 
+                  _loadSports(); 
+                  setState(() {}); 
                 }
               },
             ),
@@ -231,7 +230,7 @@ class _SportsScreenState extends State<SportsScreen> {
 
 
   void _showEditSportSheet(Sport sport) {
-    // Initialize form with sport's current values
+    // Initialize form
     _name = sport.name;
     _description = sport.description;
     _dedicationTimeXWeek = sport.dedication_time_x_week;
@@ -275,7 +274,7 @@ class _SportsScreenState extends State<SportsScreen> {
                       ),
                       TextFormField(
                         initialValue: _dedicationTimeXWeek.toString(),
-                        decoration: InputDecoration(labelText: 'Dedication Time x Week'),
+                        decoration: InputDecoration(labelText: 'Desired dedication time per week (in hours)'),
                         validator: (value) {
                           if (value == null || int.tryParse(value) == null) {
                             return 'Please enter a valid number';
@@ -322,7 +321,7 @@ class _SportsScreenState extends State<SportsScreen> {
                             await _sportsDao.updateSport(updatedSport);
                             Navigator.pop(context);
                             setState(() {
-                              _loadSports(); // Refresh the list of sports
+                              _loadSports(); // Refresh sports listing
                             });
                           }
                         },
@@ -392,7 +391,12 @@ class _SportsScreenState extends State<SportsScreen> {
                         ),
                       ),
                       SizedBox(width: 8), 
-                      // Icons
+                      IconButton(
+                        icon: Icon(Icons.access_time, color: Colors.blue),
+                        onPressed: () {
+                          // functionality to update dedication time this week.
+                        },
+                      ),
                       IconButton(
                         icon: Icon(Icons.edit, color: Colors.black),
                         onPressed: () => _showEditSportSheet(sport),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
+import 'package:lifeplanner/src/widgets/AcademicsScreen.dart';
 import 'package:lifeplanner/src/widgets/EventsScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
 import 'package:lifeplanner/src/widgets/HabitTrackerScreen.dart';
@@ -35,7 +36,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  // Callback function to trigger rebuild of AllItemsWidget
   void _updateItems() {
     setState(() {});
   }
@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Life Planner',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
       ),
       home: Scaffold(
         appBar: AppBar(
@@ -256,7 +256,7 @@ class AcademicsButton extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => HabitTrackerScreen()),
+            MaterialPageRoute(builder: (context) => AcademicsScreen()),
           );
         },
         child: Text('Academics'),

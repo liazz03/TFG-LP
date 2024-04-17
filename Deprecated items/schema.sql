@@ -1,9 +1,18 @@
+--- IMPORTANT NOTE: this sql schema contains PROJECT which is not used in the current version
+
 CREATE TABLE system_info (
   id INTEGER PRIMARY KEY CHECK (id = 0),
   last_enter TEXT
 );
 
+
 -- ACTIVITY ---------------------------------------------
+CREATE TABLE week_activity (
+  id INTEGER PRIMARY KEY,
+  week TEXT,
+  
+  target_duration INTEGER
+);
 
 CREATE TABLE courses (
   id INTEGER PRIMARY KEY,
@@ -31,6 +40,34 @@ CREATE TABLE event_categories (
   category TEXT UNIQUE 
 );
 
+CREATE TABLE assessments (
+  id INTEGER PRIMARY KEY,
+  subject_id INTEGER,
+  name TEXT,
+  weight INTEGER,
+  FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+
+CREATE TABLE grades (
+  id INTEGER PRIMARY KEY,
+  assessment_id INTEGER,
+  name TEXT,
+  weight INTEGER,
+  grade REAL,
+  FOREIGN KEY (assessment_id) REFERENCES assessments(id)
+);
+
+CREATE TABLE languages (
+  id INTEGER PRIMARY KEY,
+  level TEXT,
+  name TEXT,
+  description TEXT,
+  finished INTEGER,
+  dedication_study_time_x_week INTEGER,
+  actual_study_time_x_week INTEGER,
+  total_dedication_time INTEGER
+);
+
 CREATE TABLE sports (
   id INTEGER PRIMARY KEY,
   name TEXT,
@@ -46,14 +83,23 @@ CREATE TABLE subjects (
   id INTEGER PRIMARY KEY,
   name TEXT,
   description TEXT,
-  schedule TEXT,  -- entire timetable as a JSON-encoded string
-  dedication_time_x_week INTEGER,
-  actual_dedication_time_x_week INTEGER, 
-  total_dedication_time INTEGER,
+  schedule_start_date TEXT, -- Weekly
+  schedule_end_date TEXT, -- Weekly
+  schedule_frequency INTEGER, -- Weekly : fixed?
+  schedule_weekdays TEXT, -- Weekly
   target_average REAL,
   room INTEGER,
-  grades TEXT,  -- entire Grades as a JSON-encoded string
-  evaluations TEXT -- entire Evaluation list as a JSON-encoded string
+  week_activity_id INTEGER, -- foreign key to reference week_activity
+  FOREIGN KEY (week_activity_id) REFERENCES week_activity(id) -- defining foreign key constraint
+);
+
+CREATE TABLE evaluations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  date TEXT,
+  evaluation_type TEXT,
+  subject_id INTEGER, -- foreign key to reference subjects
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) -- defining foreign key constraint
 );
 
 -- FINANCE --------------------------------------------
@@ -148,7 +194,39 @@ CREATE TABLE habit_trackers (
   id INTEGER PRIMARY KEY,
   month TEXT,
   year INTEGER,
-  habits TEXT  -- habits as JSON encoded string
+  habits TEXT  -- Storing habits as JSON encoded string
+);
+
+CREATE TABLE projects (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  description TEXT,
+  expected_start_date TEXT,
+  expected_end_date TEXT,
+  state TEXT,
+  percentage_complete REAL,
+  category_id INTEGER, -- Foreign key reference to project_categories table
+  FOREIGN KEY (category_id) REFERENCES project_categories(id)
+);
+
+CREATE TABLE project_categories (
+  id INTEGER PRIMARY KEY,
+  category TEXT UNIQUE -- Adding unique constraint
+);
+
+CREATE TABLE sprints (
+  id INTEGER PRIMARY KEY,
+  project_id INTEGER,
+  sprint_start_date TEXT,
+  sprint_end_date TEXT,
+  project_start_date TEXT,
+  project_end_date TEXT,
+  total_hours_dedicated INTEGER,
+  percentage_of_total_project_time REAL,
+  name TEXT,
+  description TEXT,
+  done INTEGER,
+  FOREIGN KEY (project_id) REFERENCES projects(id)
 );
 
 CREATE TABLE tasks (
