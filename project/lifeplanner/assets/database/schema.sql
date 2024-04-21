@@ -57,25 +57,24 @@ CREATE TABLE subjects (
 );
 
 -- FINANCE --------------------------------------------
+CREATE TABLE balance (
+  id INTEGER PRIMARY KEY CHECK (id = 0),
+  current_available REAL,
+  expected_remaining REAL
+);
+
 CREATE TABLE budgets (
   id INTEGER PRIMARY KEY,
   month TEXT,
   total_expense_expected REAL,
-  total_income_expected REAL
+  total_income_expected REAL,
+  budget_expenses TEXT, -- entire budget_expenses as a JSON-encoded string
+  budget_incomes TEXT --entire budget_incomes as a JSON-encoded string
 );
 
-CREATE TABLE budget_expenses ( -- Represent the map of Budget categories
-  budget_id INTEGER,
-  category TEXT,
-  amount REAL,
-  FOREIGN KEY (budget_id) REFERENCES budgets(id)
-);
-
-CREATE TABLE budget_incomes ( -- Represent the map of Budget categories
-  budget_id INTEGER,
-  category TEXT,
-  amount REAL,
-  FOREIGN KEY (budget_id) REFERENCES budgets(id)
+CREATE TABLE budget_categories (
+  id INTEGER PRIMARY KEY,
+  category TEXT UNIQUE 
 );
 
 CREATE TABLE expenses (
@@ -84,7 +83,8 @@ CREATE TABLE expenses (
   amount REAL,
   concept TEXT,
   budget_or_not INTEGER,
-  budget_category TEXT
+  category_id INTEGER, -- reference budget_categories table
+  FOREIGN KEY (category_id) REFERENCES event_categories(id)
 );
 
 CREATE TABLE incomes (
@@ -93,7 +93,8 @@ CREATE TABLE incomes (
   amount REAL,
   concept TEXT,
   budget_or_not INTEGER,
-  budget_category TEXT
+  category_id INTEGER, -- reference budget_categories table
+  FOREIGN KEY (category_id) REFERENCES event_categories(id)
 );
 
 CREATE TABLE savings (
@@ -101,14 +102,8 @@ CREATE TABLE savings (
   name TEXT,
   description TEXT,
   target_amount REAL,
-  current_saved REAL
-);
-
-CREATE TABLE saving_contributions (
-  saving_id INTEGER,
-  date TEXT,
-  amount REAL,
-  FOREIGN KEY (saving_id) REFERENCES savings(id)
+  current_saved REAL,
+  contributions --entire contributions as a JSON-encoded string
 );
 
 ----JOB----------------

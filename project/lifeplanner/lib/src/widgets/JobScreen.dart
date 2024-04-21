@@ -230,7 +230,7 @@ Future<void> _addJob() async {
       amount: _amount, 
       concept: _jobName, // Job name by default
       budget_or_not: _budgetOrNot, 
-      budgetCategory: '', // TODO
+      category_id: 0, // TODO: this should be dinamic not fixed
     );
 
     // add income to db

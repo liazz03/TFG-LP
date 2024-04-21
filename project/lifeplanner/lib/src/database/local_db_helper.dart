@@ -38,6 +38,17 @@ class DatabaseHelper {
         await db.execute(statement);
       }
     }
+
+    // populate budget_categories
+    List<String> categories = [
+      'Salary', 'Clothes', 'Groceries', 'Rent', 'Utilities', 
+      'Transportation', 'Entertainment', 'Healthcare', 'Education'
+    ];
+
+    for (String category in categories) {
+      await db.insert('budget_categories', {'category': category});
+    }
+  
   }
 
   static Future<String> _readSchema() async {

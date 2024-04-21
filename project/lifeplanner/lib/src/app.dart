@@ -3,6 +3,7 @@ import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/AcademicsScreen.dart';
 import 'package:lifeplanner/src/widgets/EventsScreen.dart';
+import 'package:lifeplanner/src/widgets/FinanceScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
 import 'package:lifeplanner/src/widgets/HabitTrackerScreen.dart';
 import 'package:lifeplanner/src/widgets/JobScreen.dart';
@@ -88,23 +89,18 @@ class _MyAppState extends State<MyApp> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ProjectsButton(updateItems: _updateItems),
+                    EventsButton(updateItems: _updateItems),
                     SportsButton(updateItems: _updateItems),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    EventsButton(updateItems: _updateItems),
+                    VacationsButton(updateItems: _updateItems),
                     JobButton(updateItems: _updateItems),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    VacationsButton(updateItems: _updateItems),
-                  ],
-                ),
+                
               ],
             ),
           ),
@@ -259,7 +255,7 @@ class AcademicsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AcademicsScreen()),
           );
         },
-        child: Text('Academics'),
+        child: Text('Academics - D'),
       ),
     );
   }
@@ -277,12 +273,10 @@ class FinanceButton extends StatelessWidget {
       height: 100,
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => FinanceScreen()),
           );
         },
         child: Text('Finance'),
@@ -316,31 +310,6 @@ class GoalsButton extends StatelessWidget {
   }
 }
 
-class ProjectsButton extends StatelessWidget {
-  final Function updateItems;
-
-  const ProjectsButton({Key? key, required this.updateItems}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      height: 100,
-      margin: EdgeInsets.all(10),
-      child: ElevatedButton(
-        onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
-          );
-        },
-        child: Text('Projects'),
-      ),
-    );
-  }
-}
 
 class SportsButton extends StatelessWidget {
   final Function updateItems;

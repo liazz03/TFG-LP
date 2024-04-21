@@ -4,9 +4,9 @@ class Income {
   double amount;
   String concept;
   bool budget_or_not;
-  String? budgetCategory;
+  int category_id;
 
-  Income({this.id, required this.date, required this.amount, required this.concept, required this.budget_or_not, this.budgetCategory});
+  Income({this.id, required this.date, required this.amount, required this.concept, required this.budget_or_not, required this.category_id});
 
 
   Map<String, dynamic> toMap() {
@@ -16,7 +16,7 @@ class Income {
       'amount': amount,
       'concept': concept,
       'budget_or_not': budget_or_not ? 1 : 0, // Convert bool to int
-      'budget_category': budgetCategory,
+      'category_id': category_id,
     };
     
     return map;
@@ -29,7 +29,7 @@ class Income {
       amount: map['amount'],
       concept: map['concept'],
       budget_or_not: map['budget_or_not'] == 1, // Convert int to bool
-      budgetCategory: map['budget_category'],
+      category_id: map['category_id'],
     );
   }
 }

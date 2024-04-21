@@ -41,6 +41,12 @@ debería estar updated, lo que se resetea al fin de semana es el current_x_week.
 - COURSES: Add dedication time manually
 
 - SUBJECTS: delete/update evaluation 
-- SUBJECTS: Update SUBJECTS
-- SUBJECTS: Grades (OB)
+- SUBJECTS: delete update Grades/assesments
+- SUbjects: Calcula más el promedio
+- SUBJECTS: Add dedication time manually
+
+- FINANCE:  delete expenses and update balance
+
+- FINANCE: archivar Finances de meses pasados (balances -> current available, expected remaining etc)
+
 - Verificar que en sports Schedule se añada correctamente (OB)

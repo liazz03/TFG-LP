@@ -88,6 +88,16 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
                 children: [
                   Expanded(child: Text(subject.name)),
                   IconButton(
+                    icon: Icon(Icons.access_time),
+                    color: Color.fromARGB(255, 40, 140, 198),
+                    onPressed: () => print("todo"),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.account_tree_rounded),
+                    color: Color.fromARGB(255, 6, 68, 139),
+                    onPressed: () => _showAddGradeSheet(subject),
+                  ),
+                  IconButton(
                   icon: Icon(Icons.add_chart),
                   color: Colors.blue[800],
                   onPressed: () => _showAddEvaluationSheet(subject),
@@ -162,6 +172,192 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
       },
     );
   }
+
+
+Future<void> _showAddGradeSheet(Subject subject) async {
+  final _gradeFormKey = GlobalKey<FormState>();
+  final _gradeNameController = TextEditingController();
+  final _gradeWeightController = TextEditingController();
+  final _gradeScoreController = TextEditingController();
+  String? selectedAssessmentName;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      return SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: EdgeInsets.all(20),
+          child: Form(
+            key: _gradeFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text('Add Grade or Assessment', style: Theme.of(context).textTheme.headline6),
+                DropdownButtonFormField<String>(
+                  value: selectedAssessmentName,
+                  hint: Text("Select Assessment"),
+                  onChanged: (String? newValue) {
+                    selectedAssessmentName = newValue;
+                  },
+                  items: subject.grades.assessments.map<DropdownMenuItem<String>>((Assessment assessment) {
+                    return DropdownMenuItem<String>(
+                      value: assessment.name,
+                      child: Text(assessment.name),
+                    );
+                  }).toList(),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the bottom sheet to show the dialog
+                    _showAddAssessmentDialog(subject);
+                  },
+                  child: Text('Add Assessment'),
+                ),
+                TextFormField(
+                  controller: _gradeNameController,
+                  decoration: InputDecoration(labelText: 'Grade Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a grade name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _gradeWeightController,
+                  decoration: InputDecoration(labelText: 'Grade Weight'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextFormField(
+                  controller: _gradeScoreController,
+                  decoration: InputDecoration(labelText: 'Grade Score'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || double.tryParse(value) == null) {
+                      return 'Please enter a valid score';
+                    }
+                    return null;
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_gradeFormKey.currentState!.validate()) {
+                      _gradeFormKey.currentState!.save();
+                      if (selectedAssessmentName == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select or add an assessment.")));
+                        return;
+                      }
+                      // Find the selected assessment
+                      Assessment selectedAssessment = subject.grades.assessments.firstWhere(
+                        (assessment) => assessment.name == selectedAssessmentName,
+                        orElse: () {
+                          // If no assessment was selected, create a new one
+                          final newAssessment = Assessment(
+                            _gradeNameController.text,
+                            int.parse(_gradeWeightController.text.isEmpty ? '0' : _gradeWeightController.text),
+                            [],
+                          );
+                          subject.grades.assessments.add(newAssessment);
+                          return newAssessment;
+                        },
+                      );
+                      // Add the new grade to the selected assessment
+                      selectedAssessment.grades.add(
+                        Grade(
+                          _gradeNameController.text,
+                          int.parse(_gradeWeightController.text.isEmpty ? '0' : _gradeWeightController.text),
+                          double.parse(_gradeScoreController.text),
+                        ),
+                      );
+
+                      // Update the subject with the new assessments list
+                      _subjectDao.updateSubject(subject).then((result) {
+                        if (result > 0) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Grade added successfully")));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to add grade")));
+                        }
+                        setState(() {});
+                      });
+                      Navigator.pop(context); // Close the bottom sheet
+                    }
+                  },
+                  child: Text('Add Grade'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+  Future<void> _showAddAssessmentDialog(Subject subject) async {
+    String assessmentName = '';
+    int assessmentWeight = 0;
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Assessment'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                onChanged: (value) {
+                  assessmentName = value;
+                },
+                decoration: InputDecoration(hintText: "Assessment Name"),
+              ),
+              TextField(
+                onChanged: (value) {
+                  assessmentWeight = int.tryParse(value) ?? 0;
+                },
+                decoration: InputDecoration(hintText: "Weight"),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Add'),
+              onPressed: () {
+                if (assessmentName.isNotEmpty) {
+                  Assessment newAssessment = Assessment(
+                    assessmentName,
+                    assessmentWeight,
+                    [],
+                  );
+                  subject.grades.assessments.add(newAssessment);
+                  _subjectDao.updateSubject(subject).then((result) {
+                    Navigator.of(context).pop(); 
+                    if (result > 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Assessment added successfully")));
+                      setState(() {});
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to add assessment")));
+                    }
+                  });
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   void _showAddEvaluationSheet(Subject subject) {
     final _formKey = GlobalKey<FormState>();
