@@ -51,4 +51,16 @@ class IncomesDao {
       whereArgs: [income.id],
     );
   }
+
+  Future<List<Income>> getIncomesByYear(int year) async {
+    final db = await dbProvider;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'incomes',
+      where: "strftime('%Y', date) = ?",
+      whereArgs: [year.toString()]
+    );
+    return List.generate(maps.length, (i) {
+      return Income.fromMap(maps[i]);
+    });
+  }
 }

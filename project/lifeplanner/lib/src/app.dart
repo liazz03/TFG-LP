@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/AcademicsScreen.dart';
@@ -10,6 +11,7 @@ import 'package:lifeplanner/src/widgets/JobScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 import 'package:lifeplanner/src/widgets/VacationsScreen.dart';
+
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -50,7 +52,9 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Life Planner'),
+          
+          title: Text('Life Planner',   style: GoogleFonts.lato(),
+),
           centerTitle: true, 
         ),
         body: SingleChildScrollView(
