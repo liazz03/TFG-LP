@@ -45,7 +45,8 @@ debería estar updated, lo que se resetea al fin de semana es el current_x_week.
 - SUbjects: Calcula más el promedio
 - SUBJECTS: Add dedication time manually
 
-- FINANCE:  delete expenses and update balance
+- FINANCE: update balance (Expected remaining) upon update of Budgets (OB)
+- FINANCE: delete budget categories and update balance. (OB)
 
 - FINANCE: archivar Finances de meses pasados (balances -> current available, expected remaining etc)
 

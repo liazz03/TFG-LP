@@ -313,104 +313,186 @@ class _FinanceScreenState extends State<FinanceScreen> {
   }
 
   Widget _buildBudgetSection() {
-    return FutureBuilder<Budget>(
-      future: _budgetDao.getBudgetByMonth(DateTime.now().month),
+  return FutureBuilder<Budget>(
+    future: _budgetDao.getBudgetByMonth(DateTime.now().month),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Text("Error: ${snapshot.error}");
+      } else if (snapshot.hasData) {
+        Budget currentBudget = snapshot.data!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              title: Text("Total Budget for ${currentBudget.month.name}", style: Theme.of(context).textTheme.headline6),
+              subtitle: Text("Planned Expenses: \$${currentBudget.totalExpenseExpected.toStringAsFixed(2)}\nPlanned Incomes: \$${currentBudget.totalIncomeExpected.toStringAsFixed(2)}"),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5), // Ensure this is consistent
+              child: _buildExpensesBudgetCategoryTable(currentBudget),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5), // Ensure this is consistent
+              child: _buildIncomesBudgetCategoryTable(currentBudget),
+            ),
+            ElevatedButton(
+              onPressed: () => _showAddBudgetExpenseCategoryDialog(),
+              child: Text('Manage Budget Expenses Categories'),
+            ),
+            ElevatedButton(
+              onPressed: () => _showAddBudgetIncomeCategoryDialog(),
+              child: Text('Manage Budget Incomes Categories'),
+            ),
+          ],
+        );
+      } else {
+        return Text("No budget data available for the current month.");
+      }
+    },
+  );
+}
+
+
+  Widget _buildIncomesBudgetCategoryTable(Budget currentBudget) {
+    return FutureBuilder<Map<int, String>>(
+      future: _budgetDao.getCategoryNamesByIds([...currentBudget.budgetIncomes.keys, ...currentBudget.budgetIncomes.keys]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
+          return Text("Error loading categories: ${snapshot.error}");
         } else if (snapshot.hasData) {
-          Budget currentBudget = snapshot.data!;
+          var categoryNames = snapshot.data!;
+          List<DataRow> rows = [];
+          currentBudget.budgetIncomes.forEach((categoryId, planned) {
+            Future<double> actualIncomes = _incomesDao.getTotalIncomesByCategory(categoryId);
+
+            rows.add(
+              DataRow(cells: [
+                DataCell(Text(categoryNames[categoryId] ?? "Unknown Category", style: TextStyle(fontSize: 15))),
+                DataCell(Text("\$${planned.toStringAsFixed(2)}", style: TextStyle(fontSize: 15))),
+                DataCell(FutureBuilder<double>(
+                  future: actualIncomes,
+                  builder: (context, expSnapshot) {
+                    if (expSnapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading...", style: TextStyle(fontSize: 15));
+                    }
+                    double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
+                    return Text("\$${actual.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
+                  },
+                )),
+                DataCell(FutureBuilder<double>(
+                  future: actualIncomes,
+                  builder: (context, expSnapshot) {
+                    if (expSnapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading...", style: TextStyle(fontSize: 15));
+                    }
+                    double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
+                    double variance = planned - actual;
+                    return Text("\$${variance.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
+                  },
+                )),
+              ])
+            );
+          });
+
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListTile(
-                title: Text("Total Budget for ${currentBudget.month.name}", style: Theme.of(context).textTheme.headline6),
-                subtitle: Text("Planned Expenses: \$${currentBudget.totalExpenseExpected.toStringAsFixed(2)}\nPlanned Incomes: \$${currentBudget.totalIncomeExpected.toStringAsFixed(2)}"),
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text('Budgeted Incomes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
-              _buildBudgetCategoryTable(currentBudget),
-              ElevatedButton(
-                onPressed: () => _showAddBudgetExpenseCategoryDialog(),
-                child: Text('Manage Budget Expenses Categories'),
+              DataTable(
+                columnSpacing: 25.0,
+                columns: [
+                  DataColumn(label: Text('Category', style: TextStyle(fontSize: 15))),
+                  DataColumn(label: Text('Planned', style: TextStyle(fontSize: 15))),
+                  DataColumn(label: Text('Actual', style: TextStyle(fontSize: 15))),
+                  DataColumn(label: Text('Variance', style: TextStyle(fontSize: 15))),
+                ],
+                rows: rows
               ),
             ],
           );
         } else {
-          return Text("No budget data available for the current month.");
+          return Text("No categories found.");
         }
       },
     );
   }
 
-Widget _buildBudgetCategoryTable(Budget currentBudget) {
-  return FutureBuilder<Map<int, String>>(
-    future: _budgetDao.getCategoryNamesByIds([...currentBudget.budgetExpenses.keys, ...currentBudget.budgetIncomes.keys]),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator();
-      } else if (snapshot.hasError) {
-        return Text("Error loading categories: ${snapshot.error}");
-      } else if (snapshot.hasData) {
-        var categoryNames = snapshot.data!;
-        List<DataRow> rows = [];
-        currentBudget.budgetExpenses.forEach((categoryId, planned) {
-          Future<double> actualExpenses = _expensesDao.getTotalExpensesByCategory(categoryId);
+  Widget _buildExpensesBudgetCategoryTable(Budget currentBudget) {
+    return FutureBuilder<Map<int, String>>(
+      future: _budgetDao.getCategoryNamesByIds([...currentBudget.budgetExpenses.keys, ...currentBudget.budgetIncomes.keys]),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text("Error loading categories: ${snapshot.error}");
+        } else if (snapshot.hasData) {
+          var categoryNames = snapshot.data!;
+          List<DataRow> rows = [];
+          currentBudget.budgetExpenses.forEach((categoryId, planned) {
+            Future<double> actualExpenses = _expensesDao.getTotalExpensesByCategory(categoryId);
 
-          rows.add(
-            DataRow(cells: [
-              DataCell(Text(categoryNames[categoryId] ?? "Unknown Category", style: TextStyle(fontSize: 15))),
-              DataCell(Text("\$${planned.toStringAsFixed(2)}", style: TextStyle(fontSize: 15))),
-              DataCell(FutureBuilder<double>(
-                future: actualExpenses,
-                builder: (context, expSnapshot) {
-                  if (expSnapshot.connectionState == ConnectionState.waiting) {
-                    return Text("Loading...", style: TextStyle(fontSize: 15));
-                  }
-                  double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
-                  return Text("\$${actual.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
-                },
-              )),
-              DataCell(FutureBuilder<double>(
-                future: actualExpenses,
-                builder: (context, expSnapshot) {
-                  if (expSnapshot.connectionState == ConnectionState.waiting) {
-                    return Text("Loading...", style: TextStyle(fontSize: 15));
-                  }
-                  double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
-                  double variance = planned - actual;
-                  return Text("\$${variance.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
-                },
-              )),
-            ])
+            rows.add(
+              DataRow(cells: [
+                DataCell(Text(categoryNames[categoryId] ?? "Unknown Category", style: TextStyle(fontSize: 15))),
+                DataCell(Text("\$${planned.toStringAsFixed(2)}", style: TextStyle(fontSize: 15))),
+                DataCell(FutureBuilder<double>(
+                  future: actualExpenses,
+                  builder: (context, expSnapshot) {
+                    if (expSnapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading...", style: TextStyle(fontSize: 15));
+                    }
+                    double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
+                    return Text("\$${actual.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
+                  },
+                )),
+                DataCell(FutureBuilder<double>(
+                  future: actualExpenses,
+                  builder: (context, expSnapshot) {
+                    if (expSnapshot.connectionState == ConnectionState.waiting) {
+                      return Text("Loading...", style: TextStyle(fontSize: 15));
+                    }
+                    double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
+                    double variance = planned - actual;
+                    return Text("\$${variance.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
+                  },
+                )),
+              ])
+            );
+          });
+
+          // Wrap the DataTable within a Column to add the title
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text('Budgeted Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              DataTable(
+                columnSpacing: 25.0,
+                columns: [
+                  DataColumn(label: Text('Category', style: TextStyle(fontSize: 15))),
+                  DataColumn(label: Text('Planned', style: TextStyle(fontSize: 15))),
+                  DataColumn(label: Text('Actual', style: TextStyle(fontSize: 15))),
+                  DataColumn(label: Text('Variance', style: TextStyle(fontSize: 15))),
+                ],
+                rows: rows
+              ),
+            ],
           );
-        });
-
-        // Wrap the DataTable within a Column to add the title
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Text('Budgeted Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            DataTable(
-              columnSpacing: 25.0,
-              columns: [
-                DataColumn(label: Text('Category', style: TextStyle(fontSize: 15))),
-                DataColumn(label: Text('Planned', style: TextStyle(fontSize: 15))),
-                DataColumn(label: Text('Actual', style: TextStyle(fontSize: 15))),
-                DataColumn(label: Text('Variance', style: TextStyle(fontSize: 15))),
-              ],
-              rows: rows
-            ),
-          ],
-        );
-      } else {
-        return Text("No categories found.");
-      }
-    },
-  );
-}
+        } else {
+          return Text("No categories found.");
+        }
+      },
+    );
+  }
 
 
 
@@ -492,6 +574,92 @@ Widget _buildBudgetCategoryTable(Budget currentBudget) {
     );
   }
 
+  void _showAddBudgetIncomeCategoryDialog() async {
+    final _formKey = GlobalKey<FormState>();
+    TextEditingController _amountController = TextEditingController();
+    int? _selectedCategoryId;
+    List<Map<String, dynamic>> categories = await _budgetDao.getAllBudgetCategories();
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Category to Budget Incomes'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      DropdownButtonFormField<int>(
+                        value: _selectedCategoryId,
+                        hint: Text("Select Category"),
+                        onChanged: (int? newValue) {
+                          _selectedCategoryId = newValue;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select a category';
+                          }
+                          return null;
+                        },
+                        items: categories.map<DropdownMenuItem<int>>((Map<String, dynamic> category) {
+                          return DropdownMenuItem<int>(
+                            value: category['id'],
+                            child: Text(category['category']),
+                          );
+                        }).toList(),
+                      ),
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: InputDecoration(labelText: 'Amount'),
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value == null || double.tryParse(value) == null) {
+                            return 'Please enter a valid amount';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Add'),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  Navigator.of(context).pop();
+                  _addIncomeCategoryToBudget(_selectedCategoryId!, double.parse(_amountController.text));
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addIncomeCategoryToBudget(int categoryId, double amount) async {
+    Budget currentBudget = await _budgetDao.getBudgetByMonth(DateTime.now().month);
+    currentBudget.budgetIncomes[categoryId] = amount;
+    currentBudget.totalIncomeExpected += amount;
+    await _budgetDao.updateBudget(currentBudget);
+
+    setState(() {});  // Refresh 
+  }
+
   void _addExpenseCategoryToBudget(int categoryId, double amount) async {
     Budget currentBudget = await _budgetDao.getBudgetByMonth(DateTime.now().month);
     currentBudget.budgetExpenses[categoryId] = amount;
@@ -525,7 +693,7 @@ Widget _buildBudgetCategoryTable(Budget currentBudget) {
                 title: Text(saving.name),
                 subtitle: Text('${saving.currentSaved.toStringAsFixed(2)}/${saving.targetAmount.toStringAsFixed(2)}'),
                 children: [
-                  _buildContributionsList(saving.contributions),
+                  _buildContributionsList(saving),
                 ],
               );
             }).toList(),
@@ -562,7 +730,7 @@ Widget _buildBudgetCategoryTable(Budget currentBudget) {
                     // Update current available balance
                       var currentBalance = await _balanceDao.getBalance();
                       if (currentBalance != null) {
-                        currentBalance.currentAvailable += amount;
+                        currentBalance.currentAvailable -= amount;
                         await _balanceDao.setBalance(currentBalance);
                         _loadBalance();
                       }
@@ -584,15 +752,34 @@ Widget _buildBudgetCategoryTable(Budget currentBudget) {
 
 
 
-  Widget _buildContributionsList(Map<DateTime, double> contributions) {
-    if (contributions.isEmpty) {
+  Widget _buildContributionsList(Saving saving) {
+    if (saving.contributions.isEmpty) {
       return ListTile(title: Text("No contributions yet"));
     }
     return Column(
-      children: contributions.entries.map((entry) {
+      children: saving.contributions.entries.map((entry) {
         return ListTile(
           title: Text(DateFormat('yyyy-MM-dd').format(entry.key)),
-          trailing: Text('${entry.value.toStringAsFixed(2)}'),
+          subtitle: Text('\$${entry.value.toStringAsFixed(2)}'),
+          trailing: IconButton(
+            icon: Icon(Icons.close, color: Colors.red),
+            onPressed: () async {
+              saving.contributions.remove(entry.key);
+              // Update total saved amount
+              saving.currentSaved -= entry.value;
+              // Update the saving in the database
+              await _savingsDao.updateSaving(saving);
+              
+              // Update current available balance
+              var currentBalance = await _balanceDao.getBalance();
+              if (currentBalance != null) {
+                currentBalance.currentAvailable += entry.value;
+                await _balanceDao.setBalance(currentBalance);
+                _loadBalance();
+              }
+              setState(() {});
+            },
+          ),
         );
       }).toList(),
     );
@@ -798,11 +985,12 @@ void _showAddSavingSheet() {
     );
   }
 
-
-
   Widget _buildIncomesSection() {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+
     return FutureBuilder<List<Income>>(
-      future: _incomesDao.getAllIncomes(), 
+      future: _incomesDao.getAllIncomes(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -811,20 +999,41 @@ void _showAddSavingSheet() {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return ListTile(title: Text('No incomes recorded'));
         } else {
+          var thisMonthIncomes = snapshot.data!
+              .where((income) => income.date.isAfter(startOfMonth) || income.date.isAtSameMomentAs(startOfMonth))
+              .toList();
+
+          if (thisMonthIncomes.isEmpty) {
+            return ListTile(title: Text('No incomes this month'));
+          }
+
           return ExpansionTile(
             title: Text("View this month's incomes"),
             initiallyExpanded: false,
-            children: snapshot.data!.map((income) => ListTile(
+            children: thisMonthIncomes.map((income) => ListTile(
               leading: Icon(Icons.monetization_on),
               title: Text('${income.concept} - \$${income.amount.toStringAsFixed(2)}'),
               subtitle: Text('Date: ${DateFormat('yyyy-MM-dd').format(income.date)}'),
+              trailing: IconButton(
+                icon: Icon(Icons.close, color: Colors.red),
+                onPressed: () async {
+                  await _incomesDao.deleteIncome(income.id!);
+                  // Update current available balance
+                  var currentBalance = await _balanceDao.getBalance();
+                  if (currentBalance != null) {
+                    currentBalance.currentAvailable -= income.amount;
+                    await _balanceDao.setBalance(currentBalance);
+                    _loadBalance();
+                  }
+                  setState(() {});
+                },
+              ),
             )).toList(),
           );
         }
       },
     );
   }
-
 
   List<double> _calculateMonthlyExpenseTotals() {
     return List.generate(12, (index) {
@@ -840,41 +1049,58 @@ void _showAddSavingSheet() {
 
 
 
-  Widget _buildExpensesSection() {
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
+ Widget _buildExpensesSection() {
+  final now = DateTime.now();
+  final startOfMonth = DateTime(now.year, now.month, 1);
 
-    return FutureBuilder<List<Expense>>(
-      future: _expensesDao.getAllExpenses(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error loading expenses'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return ListTile(title: Text('No expenses recorded'));
-        } else {
-          var thisMonthExpenses = snapshot.data!
-              .where((expense) => expense.date.isAfter(startOfMonth) || expense.date.isAtSameMomentAs(startOfMonth))
-              .toList();
+  return FutureBuilder<List<Expense>>(
+    future: _expensesDao.getAllExpenses(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Error loading expenses'));
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return ListTile(title: Text('No expenses recorded'));
+      } else {
+        var thisMonthExpenses = snapshot.data!
+            .where((expense) => expense.date.isAfter(startOfMonth) || expense.date.isAtSameMomentAs(startOfMonth))
+            .toList();
 
-          if (thisMonthExpenses.isEmpty) {
-            return ListTile(title: Text('No expenses this month'));
-          }
-
-          return ExpansionTile(
-            title: Text("View this month's expenses"),
-            initiallyExpanded: false,
-            children: thisMonthExpenses.map((expense) => ListTile(
-              leading: Icon(Icons.money_off),
-              title: Text('${expense.concept} - \$${expense.amount.toStringAsFixed(2)}'),
-              subtitle: Text('Date: ${DateFormat('yyyy-MM-dd').format(expense.date)}'),
-            )).toList(),
-          );
+        if (thisMonthExpenses.isEmpty) {
+          return ListTile(title: Text('No expenses this month'));
         }
-      },
-    );
-  }
+
+        return ExpansionTile(
+          title: Text("View this month's expenses"),
+          initiallyExpanded: false,
+          children: thisMonthExpenses.map((expense) => ListTile(
+            leading: Icon(Icons.money_off),
+            title: Text('${expense.concept} - \$${expense.amount.toStringAsFixed(2)}'),
+            subtitle: Text('Date: ${DateFormat('yyyy-MM-dd').format(expense.date)}'),
+            trailing: IconButton(
+              icon: Icon(Icons.close, color: Colors.red),
+              onPressed: () async {
+                await _expensesDao.deleteExpense(expense.id!);
+
+                // update balance
+                var currentBalance = await _balanceDao.getBalance();
+                if (currentBalance != null) {
+                  currentBalance.currentAvailable += expense.amount;
+                  await _balanceDao.setBalance(currentBalance);
+                  _loadBalance();
+                }
+
+                setState(() {});
+              },
+            ),
+          )).toList(),
+        );
+      }
+    },
+  );
+}
+
 
   Widget _buildFinanceOverview() {
     return Column(
