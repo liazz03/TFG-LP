@@ -20,7 +20,7 @@ class Budget {
 
   Map<String, dynamic> toMap() {
     var map = {
-      'month': month.toString(),  
+      'month': month.name,  
       'total_expense_expected': totalExpenseExpected,
       'total_income_expected': totalIncomeExpected,
       'budget_expenses': jsonEncode(budgetExpenses.map((key, value) => MapEntry(key.toString(), value))),

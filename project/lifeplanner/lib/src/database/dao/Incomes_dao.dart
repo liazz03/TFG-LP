@@ -63,4 +63,18 @@ class IncomesDao {
       return Income.fromMap(maps[i]);
     });
   }
+
+  Future<double> getTotalIncomesByCategory(int categoryId) async {
+    final db = await dbProvider;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM incomes WHERE category_id = ?',
+      [categoryId]
+    );
+
+    if (result.isNotEmpty && result.first['total'] != null) {
+      return result.first['total'] as double;
+    } else {
+      return 0.0;
+    }
+  }
 }

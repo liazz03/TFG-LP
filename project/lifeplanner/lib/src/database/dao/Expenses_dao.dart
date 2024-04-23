@@ -18,6 +18,7 @@ class ExpensesDao {
       whereArgs: [id],
     );
   }
+  
 
   Future<List<Expense>> getAllExpenses() async {
     final db = await dbProvider;
@@ -63,4 +64,19 @@ class ExpensesDao {
       whereArgs: [expense.id],
     );
   }
+
+  Future<double> getTotalExpensesByCategory(int categoryId) async {
+    final db = await dbProvider;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM expenses WHERE category_id = ?',
+      [categoryId]
+    );
+
+    if (result.isNotEmpty && result.first['total'] != null) {
+      return result.first['total'] as double;
+    } else {
+      return 0.0;
+    }
+  }
+
 }

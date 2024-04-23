@@ -6,6 +6,7 @@ import 'package:lifeplanner/src/database/dao/Expenses_dao.dart';
 import 'package:lifeplanner/src/database/dao/Incomes_dao.dart';
 import 'package:lifeplanner/src/database/dao/Savings_dao.dart';
 import 'package:lifeplanner/src/modules/Finance/balance.dart';
+import 'package:lifeplanner/src/modules/Finance/budget.dart';
 import 'package:lifeplanner/src/modules/Finance/expense.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
@@ -298,11 +299,208 @@ class _FinanceScreenState extends State<FinanceScreen> {
             ),
             _buildSavingsSection(),
             SizedBox(height: 20),
+            Divider(height: 2, thickness: 2),
+            ListTile(
+              leading: Icon(Icons.account_balance_wallet), 
+              title: Text('Budget', style: Theme.of(context).textTheme.headline6),
+            ),
+            _buildBudgetSection(),
+            SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildBudgetSection() {
+    return FutureBuilder<Budget>(
+      future: _budgetDao.getBudgetByMonth(DateTime.now().month),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        } else if (snapshot.hasData) {
+          Budget currentBudget = snapshot.data!;
+          return Column(
+            children: [
+              ListTile(
+                title: Text("Total Budget for ${currentBudget.month.name}", style: Theme.of(context).textTheme.headline6),
+                subtitle: Text("Planned Expenses: \$${currentBudget.totalExpenseExpected.toStringAsFixed(2)}\nPlanned Incomes: \$${currentBudget.totalIncomeExpected.toStringAsFixed(2)}"),
+              ),
+              _buildBudgetCategoryTable(currentBudget),
+              ElevatedButton(
+                onPressed: () => _showAddBudgetExpenseCategoryDialog(),
+                child: Text('Manage Budget Expenses Categories'),
+              ),
+            ],
+          );
+        } else {
+          return Text("No budget data available for the current month.");
+        }
+      },
+    );
+  }
+
+Widget _buildBudgetCategoryTable(Budget currentBudget) {
+  return FutureBuilder<Map<int, String>>(
+    future: _budgetDao.getCategoryNamesByIds([...currentBudget.budgetExpenses.keys, ...currentBudget.budgetIncomes.keys]),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+        return Text("Error loading categories: ${snapshot.error}");
+      } else if (snapshot.hasData) {
+        var categoryNames = snapshot.data!;
+        List<DataRow> rows = [];
+        currentBudget.budgetExpenses.forEach((categoryId, planned) {
+          Future<double> actualExpenses = _expensesDao.getTotalExpensesByCategory(categoryId);
+
+          rows.add(
+            DataRow(cells: [
+              DataCell(Text(categoryNames[categoryId] ?? "Unknown Category", style: TextStyle(fontSize: 15))),
+              DataCell(Text("\$${planned.toStringAsFixed(2)}", style: TextStyle(fontSize: 15))),
+              DataCell(FutureBuilder<double>(
+                future: actualExpenses,
+                builder: (context, expSnapshot) {
+                  if (expSnapshot.connectionState == ConnectionState.waiting) {
+                    return Text("Loading...", style: TextStyle(fontSize: 15));
+                  }
+                  double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
+                  return Text("\$${actual.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
+                },
+              )),
+              DataCell(FutureBuilder<double>(
+                future: actualExpenses,
+                builder: (context, expSnapshot) {
+                  if (expSnapshot.connectionState == ConnectionState.waiting) {
+                    return Text("Loading...", style: TextStyle(fontSize: 15));
+                  }
+                  double actual = expSnapshot.hasData ? expSnapshot.data! : 0.0;
+                  double variance = planned - actual;
+                  return Text("\$${variance.toStringAsFixed(2)}", style: TextStyle(fontSize: 15));
+                },
+              )),
+            ])
+          );
+        });
+
+        // Wrap the DataTable within a Column to add the title
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Text('Budgeted Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            DataTable(
+              columnSpacing: 25.0,
+              columns: [
+                DataColumn(label: Text('Category', style: TextStyle(fontSize: 15))),
+                DataColumn(label: Text('Planned', style: TextStyle(fontSize: 15))),
+                DataColumn(label: Text('Actual', style: TextStyle(fontSize: 15))),
+                DataColumn(label: Text('Variance', style: TextStyle(fontSize: 15))),
+              ],
+              rows: rows
+            ),
+          ],
+        );
+      } else {
+        return Text("No categories found.");
+      }
+    },
+  );
+}
+
+
+
+
+  void _showAddBudgetExpenseCategoryDialog() async {
+    final _formKey = GlobalKey<FormState>();
+    TextEditingController _amountController = TextEditingController();
+    int? _selectedCategoryId;
+    List<Map<String, dynamic>> categories = await _budgetDao.getAllBudgetCategories();
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Category to Budget Expenses'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      DropdownButtonFormField<int>(
+                        value: _selectedCategoryId,
+                        hint: Text("Select Category"),
+                        onChanged: (int? newValue) {
+                          _selectedCategoryId = newValue;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select a category';
+                          }
+                          return null;
+                        },
+                        items: categories.map<DropdownMenuItem<int>>((Map<String, dynamic> category) {
+                          return DropdownMenuItem<int>(
+                            value: category['id'],
+                            child: Text(category['category']),
+                          );
+                        }).toList(),
+                      ),
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: InputDecoration(labelText: 'Amount'),
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value == null || double.tryParse(value) == null) {
+                            return 'Please enter a valid amount';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Add'),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  Navigator.of(context).pop();
+                  _addExpenseCategoryToBudget(_selectedCategoryId!, double.parse(_amountController.text));
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addExpenseCategoryToBudget(int categoryId, double amount) async {
+    Budget currentBudget = await _budgetDao.getBudgetByMonth(DateTime.now().month);
+    currentBudget.budgetExpenses[categoryId] = amount;
+    currentBudget.totalExpenseExpected += amount;
+    await _budgetDao.updateBudget(currentBudget);
+
+    setState(() {});  // Refresh 
+  }
+
 
   Widget _buildSavingsSection() {
     return FutureBuilder<List<Saving>>(
