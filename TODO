@@ -45,9 +45,10 @@ debería estar updated, lo que se resetea al fin de semana es el current_x_week.
 - SUbjects: Calcula más el promedio
 - SUBJECTS: Add dedication time manually
 
-- FINANCE: update balance (Expected remaining) upon update of Budgets (OB)
-- FINANCE: delete budget categories and update balance. (OB)
-
 - FINANCE: archivar Finances de meses pasados (balances -> current available, expected remaining etc)
+
+- Weekly Schedule: Hay un error de null ¿? pero aún así salen las cosas
+- Weekly Schedule: Hay que ver como manejamos lo de que hayan schedules freccionarios (4.35, 6.34 etc) de momento solo consideramos enteros 4:00 etc.
+- Weekly Scheudle: posibilidad de añadir más cosas (Bañarse asearse etc) recordar que esto se trata de un horario fixed.
 
 - Verificar que en sports Schedule se añada correctamente (OB)

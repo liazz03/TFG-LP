@@ -39,7 +39,15 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Events'),
+         title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.event, size: 32,),
+             SizedBox(width: 8), 
+            Text('Events'),
+            
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),

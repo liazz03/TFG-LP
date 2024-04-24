@@ -21,7 +21,15 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('To-Dos'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.checklist, size: 32,),
+             SizedBox(width: 8), 
+            Text('To-Dos'),
+            
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             iconSize: 30,

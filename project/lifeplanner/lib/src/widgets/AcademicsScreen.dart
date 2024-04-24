@@ -582,6 +582,7 @@ Future<void> _showAddGradeSheet(Subject subject) async {
                         _subjectFormKey.currentState!.save();
 
                         Schedule_def _schedule = Schedule_def(schedule: _weeklySchedule);
+
                         // Create new subject
                         Subject newSubject = Subject(
                           id: null,
@@ -592,7 +593,7 @@ Future<void> _showAddGradeSheet(Subject subject) async {
                           actual_dedication_time_x_week: 0, 
                           total_dedication_time: 0,  
                           target_average: _targetAverageController.text.isEmpty ? 0 : double.parse(_targetAverageController.text),
-                          room: int.parse(_roomController.text),
+                          room: int.tryParse(_roomController.text),
                           grades: Grades(_assesments),
                           evaluations: __evaluations
                         );

@@ -172,7 +172,15 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Habit Tracker"),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.monitor_heart_rounded, size: 32,),
+             SizedBox(width: 8), 
+            Text('Habit Tracker'),
+            
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             iconSize: 30, 

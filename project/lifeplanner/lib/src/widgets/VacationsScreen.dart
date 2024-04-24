@@ -21,7 +21,15 @@ class _VacationsScreenState extends State<VacationsScreen> {
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Vacations'),
+           title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.flight_takeoff, size: 32,),
+             SizedBox(width: 8), 
+            Text('Vacatons'),
+            
+          ],
+        ),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.add),

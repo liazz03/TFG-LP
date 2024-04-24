@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:lifeplanner/src/database/dao/SystemInfo_dao.dart';
 import 'package:lifeplanner/src/database/local_db_helper.dart';
 import 'package:lifeplanner/src/widgets/AcademicsScreen.dart';
@@ -11,6 +12,7 @@ import 'package:lifeplanner/src/widgets/JobScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 import 'package:lifeplanner/src/widgets/VacationsScreen.dart';
+import 'package:lifeplanner/src/widgets/WeeklyScheduleScreen.dart';
 
 
 class MyApp extends StatefulWidget {
@@ -52,10 +54,19 @@ class _MyAppState extends State<MyApp> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          
-          title: Text('Life Planner',   style: GoogleFonts.lato(),
-),
-          centerTitle: true, 
+          title: Text('Life Planner', style: TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Center(
+                child: Text(
+                  DateFormat('dd/MM').format(DateTime.now()), 
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Center(
@@ -127,12 +138,7 @@ class WeeklyPlannerButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
-          );
+          print("TODO");
         },
         child: Text('Weekly Planner'),
       ),
@@ -153,12 +159,7 @@ class MothlyCalendarButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
-          );
+           print("TODO");
         },
         child: Text('Monthly Calendar'),
       ),
@@ -179,11 +180,9 @@ class WeeklyScheduleButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-          await DatabaseHelper.addItem();
-          // Trigger rebuild of AllItemsWidget
-          updateItems();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item added to database')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WeeklyScheduleScreen()),
           );
         },
         child: Text('Weekly Schedule'),
@@ -205,7 +204,6 @@ class ToDoButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
-          // Navigate to the TasksScreen when the button is pressed
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => TasksScreen()),
@@ -283,7 +281,7 @@ class FinanceButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => FinanceScreen()),
           );
         },
-        child: Text('Finance'),
+        child: Text('Finance - D'),
       ),
     );
   }
@@ -302,7 +300,6 @@ class GoalsButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () {
-          // Navigate to the GoalsScreen
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => GoalsScreen()),

@@ -32,7 +32,15 @@ class _JobsScreenState extends State<JobsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Jobs'),
+         title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.work, size: 32,),
+             SizedBox(width: 8), 
+            Text('Jobs'),
+            
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),

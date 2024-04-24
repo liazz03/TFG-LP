@@ -204,7 +204,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Goals'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.done_all, size: 32,),
+             SizedBox(width: 8), 
+            Text('Goals'),
+            
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.add),

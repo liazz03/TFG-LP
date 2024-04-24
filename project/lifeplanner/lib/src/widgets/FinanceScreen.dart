@@ -258,7 +258,15 @@ class _FinanceScreenState extends State<FinanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Finances'),
+         title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.attach_money, size: 32,),
+             SizedBox(width: 8), 
+            Text('Finances'),
+            
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(

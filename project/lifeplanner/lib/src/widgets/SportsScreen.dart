@@ -28,7 +28,7 @@ class _SportsScreenState extends State<SportsScreen> {
   void initState() {
     super.initState();
     _checkAndUpdateDedication();
-    _loadSports(); // Load sports after updating dedication times
+    _loadSports(); 
   }
 
   Future<void> _checkAndUpdateDedication() async {
@@ -349,7 +349,15 @@ class _SportsScreenState extends State<SportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sports'),
+         title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.sports_volleyball_outlined, size: 32,),
+             SizedBox(width: 8), 
+            Text('Sports'),
+            
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
