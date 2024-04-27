@@ -9,6 +9,7 @@ import 'package:lifeplanner/src/widgets/FinanceScreen.dart';
 import 'package:lifeplanner/src/widgets/GoalsScreen.dart';
 import 'package:lifeplanner/src/widgets/HabitTrackerScreen.dart';
 import 'package:lifeplanner/src/widgets/JobScreen.dart';
+import 'package:lifeplanner/src/widgets/MonthlyCalendarScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 import 'package:lifeplanner/src/widgets/VacationsScreen.dart';
@@ -91,20 +92,20 @@ class _MyAppState extends State<MyApp> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     HabitTrackerButton(updateItems: _updateItems),
-                    AcademicsButton(updateItems: _updateItems),
+                    EventsButton(updateItems: _updateItems),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FinanceButton(updateItems: _updateItems),
-                    GoalsButton(updateItems: _updateItems),
+                    AcademicsButton(updateItems: _updateItems),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    EventsButton(updateItems: _updateItems),
+                    GoalsButton(updateItems: _updateItems),
                     SportsButton(updateItems: _updateItems),
                   ],
                 ),
@@ -159,7 +160,10 @@ class MothlyCalendarButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-           print("TODO");
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MonthlyCalendarScreen()),
+          );
         },
         child: Text('Monthly Calendar'),
       ),

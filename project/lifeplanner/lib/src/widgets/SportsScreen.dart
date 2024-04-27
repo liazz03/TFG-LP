@@ -27,23 +27,7 @@ class _SportsScreenState extends State<SportsScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAndUpdateDedication();
     _loadSports(); 
-  }
-
-  Future<void> _checkAndUpdateDedication() async {
-    SystemInfoDao _systemInfoDao = SystemInfoDao();
-    DateTime? lastEnter = await _systemInfoDao.getLastEnterDate();
-    DateTime now = DateTime.now();
-    DateTime aWeekAgo = now.subtract(Duration(days: 7));
-
-    if (lastEnter!.isBefore(aWeekAgo)) {
-      // update and reset
-      await _sportsDao.resetCurrentDedicationAndUpdateTotal();
-    }else{
-      // just update
-      await _sportsDao.UpdateTotal();
-    }
   }
 
   void _loadSports() {

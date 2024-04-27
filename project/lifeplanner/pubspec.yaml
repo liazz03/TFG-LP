@@ -21,10 +21,7 @@ dependencies:
   path: ^1.9.0
   fl_chart: ^0.40.6
   google_fonts: ^6.2.1
-
-
-  
-
+  cell_calendar: ^0.8.0
 
 dev_dependencies:
   flutter_test:

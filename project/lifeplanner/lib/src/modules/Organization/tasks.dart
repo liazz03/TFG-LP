@@ -25,7 +25,6 @@ class Tasks {
     map['state'] =  state.toString().split('.').last; // Convert enum to string
     map['description'] = description;
 
-    // new instance, let SQLflite assign the id
     if (id != null){
       map['id'] = id;
     }

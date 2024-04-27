@@ -51,4 +51,3 @@ debería estar updated, lo que se resetea al fin de semana es el current_x_week.
 - Weekly Schedule: Hay que ver como manejamos lo de que hayan schedules freccionarios (4.35, 6.34 etc) de momento solo consideramos enteros 4:00 etc.
 - Weekly Scheudle: posibilidad de añadir más cosas (Bañarse asearse etc) recordar que esto se trata de un horario fixed.
 
-- Verificar que en sports Schedule se añada correctamente (OB)
