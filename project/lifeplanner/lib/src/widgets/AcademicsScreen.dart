@@ -150,7 +150,7 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
                           'Performance:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text('Grades: ${subject.grades.assessments.isEmpty ? "No grades registered yet" : subject.grades.calculate_average()}'),
+                        Text('Average: ${subject.grades.assessments.isEmpty ? "No grades registered yet" : subject.grades.calculate_average()}'),
                         SizedBox(height: 8),
                         Text(
                           'Evaluations:',

@@ -710,52 +710,73 @@ class _FinanceScreenState extends State<FinanceScreen> {
     );
   }
 
-  void _showAddContributionDialog(BuildContext context, Saving saving) {
-    final _amountController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Add Contribution"),
-          content: TextField(
-            controller: _amountController,
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(hintText: "Enter amount"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(),
+ void _showAddContributionDialog(BuildContext context, Saving saving) {
+  final _amountController = TextEditingController();
+  String? errorMessage; 
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder( 
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text("Add Contribution"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: "Enter amount",
+                    errorText: errorMessage, 
+                  ),
+                ),
+                
+              ],
             ),
-            TextButton(
-              child: Text('Add'),
-              onPressed: () async {
-                if (_amountController.text.isNotEmpty) {
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text('Add'),
+                onPressed: () async {
                   double? amount = double.tryParse(_amountController.text);
-                  if (amount != null) {
+                  var currentBalance = await _balanceDao.getBalance();
+                  if (amount == null || amount <= 0) {
+                    setState(() {
+                      errorMessage = "Please enter a valid amount";
+                    });
+                  } else if (currentBalance!.currentAvailable < amount) {
+                    setState(() {
+                      errorMessage = "Not enough money available"; // Establecer mensaje de error
+                    });
+                  } else {
                     saving.addContribution(DateTime.now(), amount);
+                    
                     // Update current available balance
-                      var currentBalance = await _balanceDao.getBalance();
-                      if (currentBalance != null) {
-                        currentBalance.currentAvailable -= amount;
-                        await _balanceDao.setBalance(currentBalance);
-                        _loadBalance();
-                      }
+                    currentBalance.currentAvailable -= amount;
+                    await _balanceDao.setBalance(currentBalance);
+                    _loadBalance();  
 
                     // Update the saving in the database and UI
                     _savingsDao.updateSaving(saving).then((_) {
                       Navigator.of(context).pop();
-                      setState(() {}); 
+                      setState(() {}); // Actualizar UI después de guardar cambios
                     });
                   }
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
 
 

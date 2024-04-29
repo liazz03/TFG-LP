@@ -54,15 +54,5 @@ class DatabaseHelper {
   static Future<String> _readSchema() async {
     return await rootBundle.loadString('assets/database/schema.sql');
   }
-
-  static Future<int> addItem() async{
-    final db = await _getDb();
-    return await db.insert("sports", {'name':'basketball'});
-  }
-
-  static Future<List<Map<String, dynamic>>> getAllItems() async {
-    final db = await _getDb();
-    return await db.query('sports');
-  }
   
 }

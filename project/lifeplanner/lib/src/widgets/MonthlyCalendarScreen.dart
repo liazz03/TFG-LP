@@ -9,6 +9,7 @@ import 'package:lifeplanner/src/database/dao/Vacations_dao.dart';
 import 'package:lifeplanner/src/modules/Activity/event.dart';
 import 'package:lifeplanner/src/modules/Activity/subject.dart';
 import 'package:lifeplanner/src/modules/Job/vacation.dart';
+import 'package:calendarific_dart/calendarific_dart.dart';
 import 'package:lifeplanner/src/modules/Organization/tasks.dart';
 
 class MonthlyCalendarScreen extends StatefulWidget {
@@ -17,13 +18,13 @@ class MonthlyCalendarScreen extends StatefulWidget {
 }
 
  class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen>{
-
+     
   @override
   Widget build(BuildContext context) {
     final cellCalendarPageController = CellCalendarPageController();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Monthly Planner"),
+        title: Text("Monthly Calendar"),
       ),
       body: FutureBuilder<List<CalendarEvent>>(
           future: getItems(),
@@ -65,6 +66,20 @@ class MonthlyCalendarScreen extends StatefulWidget {
                     ),
                   ),
                   const Spacer(),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      print("TODO add activity implementation");
+                    },
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      print("TODO delete activity implementation");
+                    },
+                  ),
                   IconButton(
                     padding: EdgeInsets.zero,
                     icon: const Icon(Icons.calendar_today),
@@ -122,6 +137,9 @@ class MonthlyCalendarScreen extends StatefulWidget {
   }
 
   Future<List<CalendarEvent>> getItems() async {
+  const String apiKey = '7TbFJdwtL9Bq6bK8HUPIdGUrVWYdbinT';
+  final CalendarificApi api = CalendarificApi(apiKey);
+  final holidays = await api.getHolidays(countryCode: 'ES', year: '2024');
 
   final tasks = await TasksDao().getAllTasks() ;
   final events = await EventsDao().getAllEvents() ;
@@ -135,6 +153,19 @@ class MonthlyCalendarScreen extends StatefulWidget {
 
   List<CalendarEvent> events_calendar = [];
 
+  if(holidays != null){
+    for (var hol in holidays){
+      events_calendar.add(
+        CalendarEvent(
+          eventName: hol.name,
+          eventDate: hol.date,
+          eventBackgroundColor: Color.fromARGB(255, 40, 130, 172),
+          eventTextStyle: eventTextStyle,
+        ),
+      );
+    }
+  }
+  
   for (var task in  tasks){
     if(task.timeslot != null && task.state != TASKS_STATE.COMPLETED){
       events_calendar.add(

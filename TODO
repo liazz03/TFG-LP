@@ -1,11 +1,3 @@
-- Mock Up del SPORTS
-- Mock up de register
-- Clase User ¿? En el schema tiene que ir si o si (creo)
-- revisar los constructores de las clases (init de listas ¿?)
-- Events will emit a notification in case the user has enabled the option to. (how to integrate this??)
-- At the end of the day a notification will pop up to remind the user it’s time to complete the habit tracker checklist for that same day. how to integrate notifications
-- If there are no evaluation fields, the 	by default the system will consider each grade weights equally. (no está implementado, de momento hay que añadir si o si assesments con weight)
-
 - TASKS: En edit no se controla que la descripción no esté vacía
 - TASKS: En Tasks hay que borrar la clase Cancelled, no sirve 
 - TASKS: En edit no se puede añadir una hora al nuevo deadline lo pone a las 00 por defecto.
@@ -40,14 +32,16 @@ debería estar updated, lo que se resetea al fin de semana es el current_x_week.
 
 - COURSES: Add dedication time manually
 
-- SUBJECTS: delete/update evaluation 
+- SUBJECTS: delete/update evaluation
 - SUBJECTS: delete update Grades/assesments
 - SUbjects: Calcula más el promedio
 - SUBJECTS: Add dedication time manually
 
 - FINANCE: archivar Finances de meses pasados (balances -> current available, expected remaining etc)
+- FINANCE: expense no se debería añadir si no hay saldo.
 
 - Weekly Schedule: Hay un error de null ¿? pero aún así salen las cosas
 - Weekly Schedule: Hay que ver como manejamos lo de que hayan schedules freccionarios (4.35, 6.34 etc) de momento solo consideramos enteros 4:00 etc.
 - Weekly Scheudle: posibilidad de añadir más cosas (Bañarse asearse etc) recordar que esto se trata de un horario fixed.
 
+- Monthly calendar: add y delete actividades mostradas (OB)
