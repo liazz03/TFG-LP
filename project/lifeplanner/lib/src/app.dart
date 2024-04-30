@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
               child: Center(
                 child: Text(
                   DateFormat('dd/MM').format(DateTime.now()), 
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
               ),
             ),
@@ -140,12 +140,17 @@ class WeeklyPlannerButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () async {
           print("TODO");
+          updateItems();  
         },
-        child: Text('Weekly Planner'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 167, 205, 236),  
+        ),
+        child: Text('Weekly Planner',textAlign: TextAlign.center,),
       ),
     );
   }
 }
+
 
 class MothlyCalendarButton extends StatelessWidget {
   final Function updateItems;
@@ -165,7 +170,10 @@ class MothlyCalendarButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => MonthlyCalendarScreen()),
           );
         },
-        child: Text('Monthly Calendar'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 167, 205, 236),  
+        ),
+        child: Text('Monthly Calendar', textAlign: TextAlign.center,),
       ),
     );
   }
@@ -189,7 +197,10 @@ class WeeklyScheduleButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => WeeklyScheduleScreen()),
           );
         },
-        child: Text('Weekly Schedule'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 167, 205, 236),  
+        ),
+        child: Text('Weekly Schedule', textAlign: TextAlign.center,),
       ),
     );
   }
@@ -213,7 +224,10 @@ class ToDoButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => TasksScreen()),
           );
         },
-        child: Text('To-Dos - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 167, 205, 236),  
+        ),
+        child: Text('To-Dos', textAlign: TextAlign.center),
       ),
     );
   }
@@ -237,7 +251,10 @@ class HabitTrackerButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => HabitTrackerScreen()),
           );
         },
-        child: Text('Habit Tracker - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 236, 196, 167),  
+        ),
+        child: Text('Habit Tracker',textAlign: TextAlign.center),
       ),
     );
   }
@@ -261,7 +278,10 @@ class AcademicsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AcademicsScreen()),
           );
         },
-        child: Text('Academics - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 189, 167, 236),  
+        ),
+        child: Text('Academics'),
       ),
     );
   }
@@ -285,7 +305,10 @@ class FinanceButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => FinanceScreen()),
           );
         },
-        child: Text('Finance - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 185, 236, 167),  
+        ),
+        child: Text('Finance'),
       ),
     );
   }
@@ -309,7 +332,10 @@ class GoalsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => GoalsScreen()),
           );
         },
-        child: Text('Goals - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 167, 236, 197),  
+        ),
+        child: Text('Goals'),
       ),
     );
   }
@@ -334,7 +360,10 @@ class SportsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => SportsScreen()),
           );
         },
-        child: Text('Sports - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 230, 236, 167),  
+        ),
+        child: Text('Sports'),
       ),
     );
   }
@@ -359,7 +388,10 @@ class EventsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => EventsScreen()),
           );
         },
-        child: Text('Events - D'),
+        child: Text('Events'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 232, 167, 236),  
+        ),
       ),
     );
   }
@@ -384,7 +416,10 @@ class JobButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => JobsScreen()),
           );
         },
-        child: Text('Job - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 236, 167, 167),  
+        ),
+        child: Text('Jobs'),
       ),
     );
   }
@@ -408,7 +443,10 @@ class VacationsButton extends StatelessWidget {
             MaterialPageRoute(builder: (context) => VacationsScreen()),
           );
         },
-        child: Text('Vacations - D'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 236, 167, 167),  
+        ),
+        child: Text('Vacations'),
       ),
     );
   }
