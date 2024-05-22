@@ -127,7 +127,6 @@ class MonthlyCalendarScreen extends StatefulWidget {
           },
           onPageChanged: (firstDate, lastDate) {
             /// Called when the page was changed
-            /// Fetch additional events by using the range between [firstDate] and [lastDate] if you want
           },
               );
             }

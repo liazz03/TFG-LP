@@ -84,7 +84,7 @@ CREATE TABLE expenses (
   concept TEXT,
   budget_or_not INTEGER,
   category_id INTEGER, -- reference budget_categories table
-  FOREIGN KEY (category_id) REFERENCES event_categories(id)
+  FOREIGN KEY (category_id) REFERENCES budget_categories(id)
 );
 
 CREATE TABLE incomes (
@@ -94,7 +94,7 @@ CREATE TABLE incomes (
   concept TEXT,
   budget_or_not INTEGER,
   category_id INTEGER, -- reference budget_categories table
-  FOREIGN KEY (category_id) REFERENCES event_categories(id)
+  FOREIGN KEY (category_id) REFERENCES budget_categories(id)
 );
 
 CREATE TABLE savings (

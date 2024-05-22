@@ -4,13 +4,11 @@ import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
 
-  // Singleton pattern
+  // singleton pattern
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   
-  // Private constructor
   DatabaseHelper._internal();
 
-  // Public factory constructor
   factory DatabaseHelper() {
     return _instance;
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lifeplanner/src/database/dao/Tasks_dao.dart';
 import 'package:lifeplanner/src/modules/Organization/tasks.dart';
 import 'package:schedules/schedules.dart';
@@ -17,136 +18,104 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.checklist, size: 32,),
-             SizedBox(width: 8), 
-            Text('To-Dos'),
-            
-          ],
-        ),
-        actions: <Widget>[
-          IconButton(
-            iconSize: 30,
-            icon: Icon(Icons.add),
-            onPressed: () => _showAddTaskBottomSheet(),
-          ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.checklist, size: 32,),
+          SizedBox(width: 8),
+          Text('To-Dos'),
         ],
       ),
-      body: FutureBuilder<List<Tasks>>(
-        future: _tasksDao.getAllTasks(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (snapshot.hasData) {
-            List<Tasks> allTasks = snapshot.data!;
-            List<Tasks> pendingTasks = allTasks.where((task) => task.state == TASKS_STATE.PENDING).toList();
-            List<Tasks> completedTasks = allTasks.where((task) => task.state == TASKS_STATE.COMPLETED).toList();
-            List<Tasks> lateTasks = allTasks.where((task) => task.state == TASKS_STATE.LATE).toList();
+      actions: <Widget>[
+        IconButton(
+          iconSize: 30,
+          icon: Icon(Icons.add),
+          onPressed: () => _showAddTaskBottomSheet(),
+        ),
+      ],
+    ),
+    body: FutureBuilder<List<Tasks>>(
+      future: _tasksDao.getAllTasks(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        } else if (snapshot.hasData) {
+          List<Tasks> allTasks = snapshot.data!;
+          List<Tasks> pendingTasks = allTasks.where((task) => task.state == TASKS_STATE.PENDING).toList();
+          List<Tasks> completedTasks = allTasks.where((task) => task.state == TASKS_STATE.COMPLETED).toList();
+          List<Tasks> lateTasks = allTasks.where((task) => task.state == TASKS_STATE.LATE).toList();
 
-            return ListView(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
-                  ),
-                  child: Text('Pending Tasks', style: Theme.of(context).textTheme.headline6),
-                ),
-                if (pendingTasks.isEmpty)
-                  ListTile(title: Text('No Pending Tasks.')),
-                ...pendingTasks.map((task) => ListTile(
-                  title: Text(task.description),
-                  subtitle: Text(task.state.toString().split('.').last),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Colors.black),
-                        onPressed: () => _showEditTaskSheet(task),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.check, color: Colors.green[800]),
-                        onPressed: () => _MarkAsCompleteTask(task.id),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.red[800]),
-                        onPressed: () => _confirmDeleteTask(task.id),
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
-                )),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
-                  ),
-                  child: Text('Completed Tasks', style: Theme.of(context).textTheme.headline6),
-                ),
-                if (completedTasks.isEmpty)
-                  ListTile(title: Text('No Completed Tasks.')),
-                ...completedTasks.map((task) => ListTile(
-                  title: Text(task.description),
-                  subtitle: Text(task.state.toString().split('.').last),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.red[800]),
-                        onPressed: () => _confirmDeleteTask(task.id),
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
-                )),
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
-                  ),
-                  child: Text('Late Tasks', style: Theme.of(context).textTheme.headline6),
-                ),
-                if (lateTasks.isEmpty)
-                  ListTile(title: Text('No Late Tasks.')),
-                ...lateTasks.map((task) => ListTile(
-                  title: Text(task.description),
-                  subtitle: Text(task.state.toString().split('.').last),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Colors.black),
-                        onPressed: () => _showEditTaskSheet(task),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.check, color: Colors.green[800]),
-                        onPressed: () => _MarkAsCompleteTask(task.id),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.red[800]),
-                        onPressed: () => _confirmDeleteTask(task.id),
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
-                )),
-              ],
-            );
-          } else {
-            return Center(child: Text("You have no To-Dos!"));
-          }
-        },
+          return ListView(
+            children: [
+              ..._buildTaskSection(context, 'Pending To-Dos', pendingTasks),
+              ..._buildTaskSection(context, 'Completed To-Dos', completedTasks),
+              ..._buildTaskSection(context, 'Late To-Dos', lateTasks),
+            ],
+          );
+        } else {
+          return Center(child: Text("You have no To-Dos!"));
+        }
+      },
+    ),
+  );
+}
+
+List<Widget> _buildTaskSection(BuildContext context, String title, List<Tasks> tasks) {
+  return [
+    Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(width: 2.0, color: Theme.of(context).dividerColor)),
       ),
+      child: Text(title, style: Theme.of(context).textTheme.headline6),
+    ),
+    if (tasks.isEmpty)
+      ListTile(title: Text('No $title.')),
+    ...tasks.map((task) => ListTile(
+      title: Text(task.description),
+      subtitle: Text(
+        '${task.state.toString().split('.').last}${task.deadline != null ? "\nDeadline: " + DateFormat('yyyy-MM-dd').format(task.deadline!) : ""}${task.timeslot != null && task.timeslot!.startDate != null ? "\nStart Date: " + DateFormat('yyyy-MM-dd').format(task.timeslot!.startDate) : ""}'
+      ),
+      trailing: _buildTrailingWidgets(task, context),
+      isThreeLine: true,
+    )),
+  ];
+}
+
+Widget _buildTrailingWidgets(Tasks task, BuildContext context) {
+  if (task.state == TASKS_STATE.COMPLETED) {
+    return IconButton(
+      icon: Icon(Icons.close, color: Colors.red[800]),
+      onPressed: () => _confirmDeleteTask(task.id),
+    );
+  } else {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (task.state != TASKS_STATE.COMPLETED) IconButton(
+          icon: Icon(Icons.edit, color: Colors.black),
+          onPressed: () => _showEditTaskSheet(task),
+        ),
+        if (task.state != TASKS_STATE.COMPLETED) IconButton(
+          icon: Icon(Icons.check, color: Colors.green[800]),
+          onPressed: () => _MarkAsCompleteTask(task.id),
+        ),
+        IconButton(
+          icon: Icon(Icons.close, color: Colors.red[800]),
+          onPressed: () => _confirmDeleteTask(task.id),
+        ),
+      ],
     );
   }
+}
+
+
 
 
 

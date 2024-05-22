@@ -698,7 +698,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                   onPressed: () => _showAddContributionDialog(context, saving),
                 ),
                 title: Text(saving.name),
-                subtitle: Text('${saving.currentSaved.toStringAsFixed(2)}/${saving.targetAmount.toStringAsFixed(2)}'),
+                subtitle: Text('${saving.description}\n${saving.currentSaved.toStringAsFixed(2)}/${saving.targetAmount.toStringAsFixed(2)}'),
                 children: [
                   _buildContributionsList(saving),
                 ],
