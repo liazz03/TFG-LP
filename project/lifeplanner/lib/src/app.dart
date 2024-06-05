@@ -11,6 +11,7 @@ import 'package:lifeplanner/src/widgets/MonthlyCalendarScreen.dart';
 import 'package:lifeplanner/src/widgets/SportsScreen.dart';
 import 'package:lifeplanner/src/widgets/TasksScreen.dart';
 import 'package:lifeplanner/src/widgets/VacationsScreen.dart';
+import 'package:lifeplanner/src/widgets/WeeklyPlannerScreen.dart';
 import 'package:lifeplanner/src/widgets/WeeklyScheduleScreen.dart';
 
 
@@ -137,8 +138,10 @@ class WeeklyPlannerButton extends StatelessWidget {
       margin: EdgeInsets.all(10),
       child: ElevatedButton(
         onPressed: () async {
-          print("TODO");
-          updateItems();  
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => WeeklyPlannerScreen()),
+          );
         },
         style: ElevatedButton.styleFrom(
           foregroundColor: const Color.fromARGB(255, 0, 0, 0), backgroundColor: Color.fromARGB(255, 167, 205, 236),  
