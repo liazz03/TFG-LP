@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import DateFormat
+import 'package:intl/intl.dart';
+import 'package:lifeplanner/src/database/dao/Events_dao.dart';
+import 'package:lifeplanner/src/database/dao/Sports_dao.dart';
+import 'package:lifeplanner/src/database/dao/Subjects_dao.dart';
+import 'package:lifeplanner/src/modules/Activity/event.dart';
+
+import '../modules/Activity/sport.dart';
+import '../modules/Activity/subject.dart';
 
 class WeeklyPlannerScreen extends StatefulWidget {
   @override
@@ -7,7 +14,27 @@ class WeeklyPlannerScreen extends StatefulWidget {
 }
 
 class _WeeklyPlannerScreenState extends State<WeeklyPlannerScreen> {
-  final List<String> daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  List<Subject> subjects = [];
+  List<Sport> sports = [];
+  List<Event> events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() async {
+    List<Subject> allSubjects = await SubjectDao().getAllSubjects();
+    List<Sport> allSports = await SportsDao().getAllSports(); 
+    events = await EventsDao().getAllEvents(); 
+
+    subjects = allSubjects.where((subject) => subject.schedule != null).toList();
+    sports =  allSports.where((sport) => sport.schedule != null).toList();
+
+    setState(() {});
+  }
 
   List<String> _getWeekDates() {
     DateTime now = DateTime.now();
@@ -18,7 +45,7 @@ class _WeeklyPlannerScreenState extends State<WeeklyPlannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> weekDates = _getWeekDates(); // Generate dates for the current week
+    List<String> weekDates = _getWeekDates();
 
     return Scaffold(
       appBar: AppBar(
@@ -27,6 +54,11 @@ class _WeeklyPlannerScreenState extends State<WeeklyPlannerScreen> {
       body: ListView.builder(
         itemCount: weekDates.length,
         itemBuilder: (context, index) {
+          DateTime day = DateFormat('dd/MM EEEE').parse(weekDates[index]);
+          var daySubjects = subjects.where((s) => s.schedule!.schedule.any((w) => w.weekdays.contains(day.weekday))).toList();
+          var daySports = sports.where((s) => s.schedule!.schedule.any((w) => w.weekdays.contains(day.weekday))).toList();
+          var dayEvents = events.where((e) => e.timeslot.startDate.day == day.day && e.timeslot.startDate.month == day.month).toList();
+
           return Container(
             width: double.infinity,
             constraints: BoxConstraints(minHeight: 150.0),
@@ -47,21 +79,10 @@ class _WeeklyPlannerScreenState extends State<WeeklyPlannerScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  weekDates[index],
-                  style: TextStyle(
-                    fontSize: 18.0,  // Smaller font size
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "Add tasks/events here",
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 16.0,
-                  ),
-                ),
+                Text(weekDates[index], style: TextStyle(fontWeight: FontWeight.bold)),
+                ...daySubjects.map((s) => Text('Subject: ${s.name}', style: TextStyle(fontSize: 16))),
+                ...daySports.map((s) => Text('Sport: ${s.name}', style: TextStyle(fontSize: 16))),
+                ...dayEvents.map((e) => Text('Event: ${e.name}', style: TextStyle(fontSize: 16))),
               ],
             ),
           );
