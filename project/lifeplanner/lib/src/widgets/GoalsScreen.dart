@@ -240,10 +240,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
             );
           } else {
             List<Goal> allGoals = snapshot.data!;
-            List<Goal> thisWeeksGoals = allGoals.where((goal) => goal.type == GoalType.weekly).toList();
-            List<Goal> monthGoals = allGoals.where((goal) => goal.type == GoalType.monthly).toList();
-            List<Goal> yearGoals = allGoals.where((goal) => goal.type == GoalType.yearly).toList();
-            List<Goal> otherGoals = allGoals.where((goal) => goal.type == GoalType.noDate || goal.targetDate != null && goal.targetDate!.isBefore(now)).toList();
+            List<Goal> thisWeeksGoals = allGoals.where((goal) => goal.type == GoalType.weekly && !goal.achieved).toList();
+            List<Goal> monthGoals = allGoals.where((goal) => goal.type == GoalType.monthly && !goal.achieved).toList();
+            List<Goal> yearGoals = allGoals.where((goal) => goal.type == GoalType.yearly && !goal.achieved).toList();
+            List<Goal> otherGoals = allGoals.where((goal) => goal.type == GoalType.noDate && !goal.achieved || goal.targetDate != null && goal.targetDate!.isBefore(now) && !goal.achieved).toList();
             List<Goal> achievedGoals = allGoals.where((goal) => goal.achieved).toList();
 
             return ListView(
@@ -252,7 +252,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 _goalSection('$currentMonth Goals', monthGoals),
                 _goalSection('$currentYear Goals', yearGoals),
                 _goalSection('Other Goals', otherGoals),
-                _goalSection('Achieved Goals', achievedGoals),
+                _achievedGoalSection('Achieved Goals', achievedGoals),
               ],
             );
           }
@@ -260,6 +260,48 @@ class _GoalsScreenState extends State<GoalsScreen> {
       ),
     );
   }
+
+  Widget _achievedGoalSection(String title, List<Goal> goals) {
+    return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border:  Border(bottom: BorderSide(width: 3.0, color: Theme.of(context).dividerColor)),
+              ),
+              child: Text(title, style: Theme.of(context).textTheme.headline6),
+            ),
+            if (goals.isEmpty)
+              ListTile(title: Text('No $title')),
+            ...goals.map((goal) => _achievedGoalInfoDisp(goal)).toList(),
+          ],
+        );
+  }
+
+  Widget _achievedGoalInfoDisp(Goal goal) {
+    String formattedDate = goal.targetDate != null ? DateFormat('yyyy-MM-dd').format(goal.targetDate!) : 'No target date';
+    return ListTile(
+      title: Text(goal.name),
+      subtitle: Text('${goal.description ?? 'No description'}\nTarget Date: $formattedDate'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.black),
+            onPressed: () => _showEditGoalSheet(goal),
+          ),
+          IconButton(
+            icon: Icon(Icons.close, color: Colors.red[800]),
+            onPressed: () => _confirmDeleteGoal(goal.id),
+          ),
+        ],
+      ),
+      isThreeLine: true,
+    );
+  }
+
 
   Widget _goalSection(String title, List<Goal> goals) {
     return Column(
@@ -304,7 +346,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           ),
           IconButton(
             icon: Icon(Icons.check, color: Colors.green[800]),
-            onPressed: () => print("TODO"),
+            onPressed: () => _markAsAchieved(goal),
           ),
           IconButton(
             icon: Icon(Icons.close, color: Colors.red[800]),
@@ -314,6 +356,12 @@ class _GoalsScreenState extends State<GoalsScreen> {
       ),
       isThreeLine: true,
     );
+  }
+
+   Future<void> _markAsAchieved(Goal goal) async {
+    goal.achieved = true;
+    await _goalDao.updateGoal(goal);
+    setState(() {}); 
   }
 
   void _confirmDeleteGoal(int? id) {
