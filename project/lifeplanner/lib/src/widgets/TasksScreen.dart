@@ -80,7 +80,7 @@ List<Widget> _buildTaskSection(BuildContext context, String title, List<Tasks> t
     ...tasks.map((task) => ListTile(
       title: Text(task.description),
       subtitle: Text(
-        '${task.state.toString().split('.').last}${task.deadline != null ? "\nDeadline: " + DateFormat('yyyy-MM-dd').format(task.deadline!) : ""}${task.timeslot != null && task.timeslot!.startDate != null ? "\nStart Date: " + DateFormat('yyyy-MM-dd').format(task.timeslot!.startDate) : ""}'
+        '${task.state.toString().split('.').last}${task.deadline != null ? "\nDeadline: " + DateFormat('yyyy-MM-dd – HH:mm').format(task.deadline!) : ""}${task.timeslot != null && task.timeslot!.startDate != null ? "\nStart Date: " + DateFormat('yyyy-MM-dd').format(task.timeslot!.startDate) : ""}'
       ),
       trailing: _buildTrailingWidgets(task, context),
       isThreeLine: true,
@@ -205,8 +205,6 @@ Widget _buildTrailingWidgets(Tasks task, BuildContext context) {
     );
   }
 
-
-
   void _showAddTaskBottomSheet() {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -267,17 +265,51 @@ class _EditTaskFormState extends State<EditTaskForm> {
     super.dispose();
   }
 
-   Future<void> _pickDeadlineDate() async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> _pickDeadlineDate() async {
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _deadline ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null && picked != _deadline) {
-      setState(() => _deadline = picked);
+    if (pickedDate != null) {
+      setState(() {
+        _deadline = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          _deadline?.hour ?? 0,
+          _deadline?.minute ?? 0,
+        );
+      });
     }
   }
+
+  Future<void> _pickDeadlineTime() async {
+    if (_deadline == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please select a date first."))
+      );
+      return;
+    }
+
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_deadline!), // Ensure _deadline is not null
+    );
+    if (pickedTime != null) {
+      setState(() {
+        _deadline = DateTime(
+          _deadline!.year,
+          _deadline!.month,
+          _deadline!.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+      });
+    }
+  }
+
 
   Future<void> _pickTimeslotStartDate() async {
     final DateTime? picked = await showDatePicker(
@@ -369,20 +401,26 @@ Future<void> _pickTimeslotEndTime() async {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            if (!isEditable) // If the task is not editable show red message
-            Text(
-              'This task is not editable because its completed.',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
             TextFormField(
               controller: _descriptionController,
               decoration: InputDecoration(labelText: 'Edit description'),
               enabled: isEditable,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Description cannot be empty';  // Return a validation message if the field is empty
+                }
+                return null;  // Return null if the data is valid
+              },
             ),
             ElevatedButton(
-              onPressed: isEditable ? _pickDeadlineDate : null,
-              child: Text(_deadline == null ? 'Pick a new deadline' : 'Deadline: $_deadline'),
-            ),
+            onPressed: isEditable ? _pickDeadlineDate : null,
+            child: Text(_deadline == null ? 'Pick Deadline Date' : 'Deadline Date: ${DateFormat('yMd').format(_deadline!)}'),
+          ),
+          ElevatedButton(
+            onPressed: _deadline != null && isEditable ? _pickDeadlineTime : null, // Enable time selection only if a date is set
+            child: Text(_deadline == null ? 'Pick Deadline Time' : 'Deadline Time: ${DateFormat('jm').format(_deadline!)}'),
+          
+          ),
             ElevatedButton(
               onPressed: isEditable ? _pickTimeslotStartDate : null,
               child: Text(_dateOfDoing == null ? 'Pick new date of doing this task' : 'Start: $_dateOfDoing'),

@@ -1,7 +1,4 @@
 import 'package:lifeplanner/src/database/local_db_helper.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:schedules/schedules.dart';
 
 import '../../modules/Organization/tasks.dart';
 

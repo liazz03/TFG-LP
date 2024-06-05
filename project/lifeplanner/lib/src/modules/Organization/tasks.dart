@@ -1,6 +1,6 @@
 import 'package:schedules/schedules.dart';
 
-enum TASKS_STATE{PENDING, CANCELLED, COMPLETED, LATE,}
+enum TASKS_STATE{PENDING, COMPLETED, LATE,}
 
 
 class Tasks {
