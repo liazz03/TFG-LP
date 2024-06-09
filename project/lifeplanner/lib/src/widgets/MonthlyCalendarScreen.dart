@@ -6,9 +6,6 @@ import 'package:lifeplanner/src/database/dao/Events_dao.dart';
 import 'package:lifeplanner/src/database/dao/Subjects_dao.dart';
 import 'package:lifeplanner/src/database/dao/Tasks_dao.dart';
 import 'package:lifeplanner/src/database/dao/Vacations_dao.dart';
-import 'package:lifeplanner/src/modules/Activity/event.dart';
-import 'package:lifeplanner/src/modules/Activity/subject.dart';
-import 'package:lifeplanner/src/modules/Job/vacation.dart';
 import 'package:calendarific_dart/calendarific_dart.dart';
 import 'package:lifeplanner/src/modules/Organization/tasks.dart';
 
@@ -17,8 +14,8 @@ class MonthlyCalendarScreen extends StatefulWidget {
   _MonthlyCalendarScreenState createState() => _MonthlyCalendarScreenState();
 }
 
- class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen>{
-     
+class _MonthlyCalendarScreenState extends State<MonthlyCalendarScreen>{
+  
   @override
   Widget build(BuildContext context) {
     final cellCalendarPageController = CellCalendarPageController();
@@ -75,13 +72,6 @@ class MonthlyCalendarScreen extends StatefulWidget {
                   ),
                   IconButton(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      print("TODO delete activity implementation");
-                    },
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
                     icon: const Icon(Icons.calendar_today),
                     onPressed: () {
                       cellCalendarPageController.animateToDate(
@@ -95,44 +85,74 @@ class MonthlyCalendarScreen extends StatefulWidget {
               ),
             );
           },
-          onCellTapped: (date) {
-            final eventsOnTheDate = snapshot.data!.where((event) {
+            onCellTapped: (date) {
+              final eventsOnTheDate = snapshot.data!.where((event) {
               final eventDate = event.eventDate;
               return eventDate.year == date.year &&
-                  eventDate.month == date.month &&
-                  eventDate.day == date.day;
-            }).toList();
-            showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                      title: Text("${date.month.monthName} ${date.day}"),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: eventsOnTheDate
-                            .map(
-                              (event) => Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(4),
-                                margin: const EdgeInsets.only(bottom: 12),
-                                color: event.eventBackgroundColor,
-                                child: Text(
-                                  event.eventName,
-                                  style: event.eventTextStyle,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ));
-          },
-          onPageChanged: (firstDate, lastDate) {
-            /// Called when the page was changed
-          },
-              );
+                    eventDate.month == date.month &&
+                    eventDate.day == date.day;
+            }).toList(); 
+
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: Text("${date.month.monthName} ${date.day}"),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: eventsOnTheDate.map((event) {
+                    if (event is ExtendedCalendarEvent) {
+                      return ListTile(
+                        tileColor: event.eventBackgroundColor,
+                        title: Text(event.eventName, style: event.eventTextStyle),
+                        trailing: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            if (event.itemType == ItemType.Holiday){
+                              snapshot.data!.remove(event);
+                            }else{
+                              _deleteEvent(event);
+                            }
+                        },
+                        ),
+                      );
+                    } else {
+                      return ListTile(
+                        title: Text(event.eventName, style: event.eventTextStyle),
+                        subtitle: Text(''),
+                      );
+                    }
+                  }).toList(),
+                ),
+              ));
+              },
+            onPageChanged: (firstDate, lastDate) {
+              /// Called when the page was changed
+            },
+                );
+              }
             }
-          }
-      )
-    );
+        )
+      );
+  }
+
+  void _deleteEvent(ExtendedCalendarEvent event) {
+    switch (event.itemType) {
+      case ItemType.Task:
+        TasksDao().deleteTask(event.id);
+        break;
+      case ItemType.Event:
+        EventsDao().deleteEvent(event.id);
+        break;
+      case ItemType.Vacation:
+        VacationsDao().deleteVacation(event.id);
+        break;
+      case ItemType.Subject:
+        SubjectDao().deleteSubject(event.id);
+        break;
+      case ItemType.Holiday:
+        break;
+    }
+    setState((){Navigator.pop(context);});
   }
 
   Future<List<CalendarEvent>> getItems() async {
@@ -155,11 +175,13 @@ class MonthlyCalendarScreen extends StatefulWidget {
   if(holidays != null){
     for (var hol in holidays){
       events_calendar.add(
-        CalendarEvent(
+        ExtendedCalendarEvent(
           eventName: hol.name,
           eventDate: hol.date,
           eventBackgroundColor: Color.fromARGB(255, 40, 130, 172),
           eventTextStyle: eventTextStyle,
+          id: 0,
+          itemType: ItemType.Holiday
         ),
       );
     }
@@ -168,36 +190,40 @@ class MonthlyCalendarScreen extends StatefulWidget {
   for (var task in  tasks){
     if(task.timeslot != null && task.state != TASKS_STATE.COMPLETED){
       events_calendar.add(
-        CalendarEvent(
-          eventName: task.description,
-          eventDate: task.timeslot!.startDate,
-          eventBackgroundColor: Color.fromARGB(255, 230, 67, 213),
-          eventTextStyle: eventTextStyle,
-        ),
+        ExtendedCalendarEvent(
+        eventName: task.description,
+        eventDate: task.timeslot!.startDate,
+        eventBackgroundColor: Color.fromARGB(255, 230, 67, 213),
+        eventTextStyle: eventTextStyle,
+        id: task.id,
+       itemType: ItemType.Task
+      ),
       );
     }
   }
 
   for (var event in events){
-    if(event.timeslot != null){
-      events_calendar.add(
-        CalendarEvent(
-          eventName: event.name,
-          eventDate: event.timeslot.startDate,
-          eventBackgroundColor: Color.fromARGB(255, 93, 208, 164),
-          eventTextStyle: eventTextStyle,
-        ),
-      );
-    }
+    events_calendar.add(
+      ExtendedCalendarEvent(
+        eventName: event.name,
+        eventDate: event.timeslot.startDate,
+        eventBackgroundColor: Color.fromARGB(255, 93, 208, 164),
+        eventTextStyle: eventTextStyle,
+        id: event.id,
+        itemType: ItemType.Event
+      ),
+    );
   }
 
   for (var vacation in vacations){
     events_calendar.add(
-      CalendarEvent(
+      ExtendedCalendarEvent(
         eventName: vacation.title,
         eventDate: vacation.start_date,
         eventBackgroundColor: Color.fromARGB(255, 84, 144, 211),
         eventTextStyle: eventTextStyle,
+        id: vacation.id,
+        itemType: ItemType.Vacation
       ),
     );
   }
@@ -206,11 +232,13 @@ class MonthlyCalendarScreen extends StatefulWidget {
     for( var evaluation in subject.evaluations){
       String name = evaluation.name + " -  " + subject.name; 
       events_calendar.add(
-        CalendarEvent(
+        ExtendedCalendarEvent(
           eventName: name,
           eventDate: evaluation.date,
           eventBackgroundColor: Color.fromARGB(255, 248, 179, 29),
           eventTextStyle: eventTextStyle,
+          id: subject.id,
+          itemType: ItemType.Subject
         ),
       );
     }
@@ -219,6 +247,30 @@ class MonthlyCalendarScreen extends StatefulWidget {
   return events_calendar;
 }
  }
+
+enum ItemType {Task, Event, Vacation, Subject, Holiday,}
+
+class ExtendedCalendarEvent extends CalendarEvent {
+  final int id; // Non-nullable integer
+  final ItemType itemType;
+
+  ExtendedCalendarEvent({
+    required String eventName,
+    required DateTime eventDate,
+    required Color eventBackgroundColor,
+    required TextStyle eventTextStyle,
+    required int? id, // Passed as nullable but checked inside the constructor
+    required this.itemType,
+  })  : id = id ?? (throw ArgumentError("ID cannot be null")),
+        super(
+          eventName: eventName,
+          eventDate: eventDate,
+          eventBackgroundColor: eventBackgroundColor,
+          eventTextStyle: eventTextStyle,
+        );
+}
+
+
 
       
       

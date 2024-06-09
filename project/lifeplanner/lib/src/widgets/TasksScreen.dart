@@ -80,7 +80,8 @@ List<Widget> _buildTaskSection(BuildContext context, String title, List<Tasks> t
     ...tasks.map((task) => ListTile(
       title: Text(task.description),
       subtitle: Text(
-        '${task.state.toString().split('.').last}${task.deadline != null ? "\nDeadline: " + DateFormat('yyyy-MM-dd – HH:mm').format(task.deadline!) : ""}${task.timeslot != null && task.timeslot!.startDate != null ? "\nStart Date: " + DateFormat('yyyy-MM-dd').format(task.timeslot!.startDate) : ""}'
+        '${task.state.toString().split('.').last}${task.deadline != null ? 
+        "\nDeadline: " + DateFormat('yyyy-MM-dd – HH:mm').format(task.deadline!) : ""}${task.timeslot != null ? "\nStart Date: " + DateFormat('yyyy-MM-dd').format(task.timeslot!.startDate) : ""}'
       ),
       trailing: _buildTrailingWidgets(task, context),
       isThreeLine: true,
@@ -114,9 +115,6 @@ Widget _buildTrailingWidgets(Tasks task, BuildContext context) {
     );
   }
 }
-
-
-
 
 
   void _MarkAsCompleteTask(int? id) async {
@@ -611,6 +609,7 @@ class _AddTaskFormState extends State<AddTaskForm> {
 
   void _addTask() async {
     DateTime? deadlineDateTime;
+  
     if (_DeadlineDate != null && _deadlineTime != null) {
       deadlineDateTime = DateTime(
         _DeadlineDate!.year,
@@ -618,6 +617,12 @@ class _AddTaskFormState extends State<AddTaskForm> {
         _DeadlineDate!.day,
         _deadlineTime!.hour,
         _deadlineTime!.minute,
+      );
+    } else if (_DeadlineDate != null && _deadlineTime == null){
+      deadlineDateTime = DateTime(
+        _DeadlineDate!.year,
+        _DeadlineDate!.month,
+        _DeadlineDate!.day,
       );
     }
 
