@@ -386,7 +386,7 @@ class _SportsScreenState extends State<SportsScreen> {
                       IconButton(
                         icon: Icon(Icons.access_time, color: Colors.blue),
                         onPressed: () {
-                          // functionality to update dedication time this week.
+                          _showUpdateDedicationTimeDialog(sport);
                         },
                       ),
                       IconButton(
@@ -410,6 +410,70 @@ class _SportsScreenState extends State<SportsScreen> {
           }
         },
       ),
+    );
+  }
+
+  Future<void> _showUpdateDedicationTimeDialog(Sport sport) async {
+    final TextEditingController _timeController = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Update Dedication Time'),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _timeController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(hintText: 'Enter additional hours'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a number';
+                    }
+                    if (int.tryParse(value) == null ) {
+                      return 'Please enter a valid number';
+                    }
+                    if (int.tryParse(value)! <= 0){
+                      return 'Please enter a valid number';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Submit'),
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  final int additionalHours = int.parse(_timeController.text);
+                  sport.actual_dedication_time_x_week += additionalHours;
+                  sport.total_dedicated_time += additionalHours;
+
+                  await SportsDao().updateSport(sport);
+                  setState(() {
+                    // Rebuild the widget to reflect the updated time
+                  });
+
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
